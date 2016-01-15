@@ -89,7 +89,9 @@ def getGraph(id):
     pdb.set_trace()
     pass
 
-def makeGraph():
-#helper inserts an entry in the table
+def verifyUserCanRead(userId, projectId):
 
+    pass
+
+def verifyUserCanEdit():
     pass
