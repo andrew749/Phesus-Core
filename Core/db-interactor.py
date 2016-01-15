@@ -1,1 +1,3 @@
-from flask import Flask
+#Database adapter
+import psycopg2
+
