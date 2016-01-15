@@ -1,0 +1,17 @@
+{
+  [
+    id:12121,
+    coordinate:[x,y],
+    connections:[
+      {
+        destinationId:321321,
+        type:"normal"
+      }
+    ],
+    type: "normal",
+    data: {
+      title: "" ,
+      description
+    }
+  ]
+}
