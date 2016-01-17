@@ -101,17 +101,17 @@ def getGraph(userId, projectId):
     if(verifyUserCanRead(userId, projectId)):
         nodes = getNodesByProject(userId, projectId)
         connections = getConnectionsByProject(userId, projectId)
-        pdb.set_trace()
+        return json.dumps({"projectId":projectId,"nodes":nodes, "connections":connections})
     else:
         return None
 
 def getNodesByProject(userId, projectId):
     #return an array of nodes for the project
-    return executeStatement(GET_NODES_BY_PROJECT,  (projectId), True)
+    return executeStatement(GET_NODES_BY_PROJECT,  (projectId,), True)
 
 def getConnectionsByProject(userId, projectId):
     #return all the edges of the graph
-    return executeStatement(GET_CONNECTIONS_BY_PROJECT, (projectId), True)
+    return executeStatement(GET_CONNECTIONS_BY_PROJECT, (projectId,), True)
 
 def createGraph(owners, members):
     #return projectId
@@ -146,7 +146,8 @@ def verifyUserCanEdit(userId, projectId):
 
 #START OF PROGRAM
 initTables()
-id = createUser("John Cena")
-projectId = createGraph([id], [])
-createNode(10, 10, NodeType.NORMAL, json.dumps({"test":"test"}), projectId)
-createConnection(projectId,ConnectionType.BIDIRECTIONAL, id, id - 1, json.dumps({"test":"TEST"}))
+# id = createUser("John Cena")
+# projectId = createGraph([id], [])
+# createNode(10, 10, NodeType.NORMAL, json.dumps({"test":"test"}), projectId)
+# createConnection(projectId,ConnectionType.BIDIRECTIONAL, id, id - 1, json.dumps({"test":"TEST"}))
+print (getGraph(id, 9))
