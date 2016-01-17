@@ -3,14 +3,15 @@ import psycopg2
 import os
 import pdb
 
-DB_NAME =  os.environ['USER']
-DB_HOST =  os.environ['localhost']
-DB_PASS =  os.environ['PASSWORD']
+DB_NAME =  'phesus'
+DB_USER = 'dummy'
+DB_PASS = 'dummy'
+DB_HOST = 'localhost'
 
 #STATEMENTS
 
 CREATE_NODES_TABLE = """
-    CREATE TABLE NODES (ID BIGSERIAL PRIMARY KEY  NOT NULL,
+    CREATE TABLE IF NOT EXISTS NODES (ID BIGSERIAL PRIMARY KEY  NOT NULL,
     X INT NOT NULL,
     Y INT NOT NULL,
     TYPE TEXT NOT NULL,
@@ -19,26 +20,26 @@ CREATE_NODES_TABLE = """
     );"""
 
 CREATE_CONNECTION_TABLE = """
-    CREATE TABLE CONNECTIONS (
+    CREATE TABLE IF NOT EXISTS CONNECTIONS (
     ID BIGSERIAL PRIMARY KEY  NOT NULL,
     PROJECT INT NOT NULL REFERENCES PROJECTS(ID),
     TYPE TEXT NOT NULL,
-    FROM INT NOT NULL,
-    TO INT NOT NULL,
+    FROMNODE INT NOT NULL,
+    TONODE INT NOT NULL,
     METADATA JSON
     );
 """
 
 CREATE_USERS_TABLE    = """
-    CREATE TABLE USERS (ID BIGSERIAL PRIMARY KEY NOT NULL,
+    CREATE TABLE IF NOT EXISTS USERS (ID BIGSERIAL PRIMARY KEY NOT NULL,
     GOOGLEID TEXT NOT NULL,
     NAME TEXT
     );"""
 
 CREATE_PROJECTS_TABLE = """
-    CREATE TABLE PROJECTS (ID BIGSERIAL PRIMARY KEY NOT NULL,
+    CREATE TABLE IF NOT EXISTS PROJECTS (ID BIGSERIAL PRIMARY KEY NOT NULL,
     OWNERS INT[] NOT NULL,
-    GROUP INT[]
+    MEMBERS INT[]
     );"""
 
 GET_NODES_BY_PROJECT  = """
@@ -65,33 +66,65 @@ CREATE_GRAPH          = """INSERT INTO PROJECTS (OWNERS, MEMBERS) VALUES (%s, %s
 
 INSERT_NODE           = """INSERT INTO NODES (X,Y,TYPE,CONTENT,PROJECTS) VALUES (%s, %s, %s, %s, %s);"""
 
-INSERT_CONNECTION = """INSERT INTO CONNECTIONS (PROJECT, TYPE, FROM, TO, METADATA) VALUES (%s, %s, %s, %s, %s);"""
+INSERT_CONNECTION = """INSERT INTO CONNECTIONS (PROJECT, TYPE, FROMNODE, TONODE, METADATA) VALUES (%s, %s, %s, %s, %s);"""
 
 #both params are node id
-DELETE_CONNECTION = """DELETE FROM NODES WHERE %s=ID; DELETE FROM CONNECTIONS WHERE %s in FROM || TO;"""
+DELETE_CONNECTION = """DELETE FROM NODES WHERE %s=ID; DELETE FROM CONNECTIONS WHERE %s in FROMNODE || TONODE;"""
 
 try:
-    conn = psycopg2.connect("dbname='template1' user='%s' host='%s' password='%s'" % (DB_NAME, DB_HOST, DB_PASS))
+    conn = psycopg2.connect("dbname='%s' user='%s' host='%s' password='%s'" % (DB_NAME,DB_USER, DB_HOST, DB_PASS))
+    cur = conn.cursor()
 except:
-    print "I am unable to connect to the database"
+    print ("I am unable to connect to the database")
 
-cur = conn.cursor()
 
-def executeStatement(executableStatement, arguments):
+def initTables():
+    executeStatement(CREATE_PROJECTS_TABLE, None, False)
+    executeStatement(CREATE_NODES_TABLE, None, False)
+    executeStatement(CREATE_USERS_TABLE, None, False)
+    executeStatement(CREATE_CONNECTION_TABLE, None, False)
+
+def executeStatement(executableStatement, arguments, getResult):
 # helper method to execute a query and get responses
-    cur.execute(executeStatement, arguments)
-    rows = cur.fetchall()
-    return rows
+    if (arguments is not None):
+        cur.execute(executableStatement, arguments)
+    else:
+        cur.execute(executableStatement)
+    conn.commit()
+    if getResult:
+        rows = cur.fetchall()
+        return rows
 
-def getGraph(id):
+def getGraph(userId, projectId):
 #helper returns the json object of the graph
-    executeStatement(GET_ROW_BY_USER, (id))
-    pdb.set_trace()
+    if(verifyUserCanRead(userId, projectId)):
+        nodes = getNodesByProject(userId, projectId)
+        connections = getConnectionsByProject(userId, projectId)
+        pdb.set_trace()
+    else:
+        return None
+
+def getNodesByProject(userId, projectId):
+    #return an array of nodes for the project
+    return executeStatement(GET_NODES_BY_PROJECT,  (projectId), True)
+
+def getConnectionsByProject(userId, projectId):
+    #return all the edges of the graph
+    return executeStatement(GET_CONNECTIONS_BY_PROJECT, (projectId), True)
+
+def createGraph(userId):
+    executeStatement(CREATE_GRAPH, (userId, (None)))
     pass
 
+#TODO work on permissions
 def verifyUserCanRead(userId, projectId):
+    #return boolean if the user can ready
+    return True
 
-    pass
+def verifyUserCanEdit(userId, projectId):
+    #verify is a user has read permissions on a graph
+    return True
 
-def verifyUserCanEdit():
-    pass
+
+#START OF PROGRAM
+initTables()
