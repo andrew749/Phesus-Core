@@ -32,7 +32,6 @@ CREATE_CONNECTION_TABLE = """
 
 CREATE_USERS_TABLE    = """
     CREATE TABLE IF NOT EXISTS USERS (ID BIGSERIAL PRIMARY KEY NOT NULL,
-    GOOGLEID TEXT NOT NULL,
     NAME TEXT
     );"""
 
@@ -62,12 +61,10 @@ VERIFY_NODE_IS_IN_PROJECT = """
     );
 """
 
-CREATE_GRAPH          = """INSERT INTO PROJECTS (OWNERS, MEMBERS) VALUES (%s, %s);"""
-
-INSERT_NODE           = """INSERT INTO NODES (X,Y,TYPE,CONTENT,PROJECTS) VALUES (%s, %s, %s, %s, %s);"""
-
-INSERT_CONNECTION = """INSERT INTO CONNECTIONS (PROJECT, TYPE, FROMNODE, TONODE, METADATA) VALUES (%s, %s, %s, %s, %s);"""
-
+CREATE_USER = """INSERT INTO USERS (NAME) VALUES (%s) RETURNING ID;"""
+CREATE_GRAPH = """INSERT INTO PROJECTS (OWNERS, MEMBERS) VALUES (%s, %s) RETURNING ID;"""
+INSERT_NODE = """INSERT INTO NODES (X,Y,TYPE,CONTENT,PROJECTS) VALUES (%s, %s, %s, %s, %s) RETURNING ID;"""
+INSERT_CONNECTION = """INSERT INTO CONNECTIONS (PROJECT, TYPE, FROMNODE, TONODE, METADATA) VALUES (%s, %s, %s, %s, %s) RETURNING ID;"""
 #both params are node id
 DELETE_CONNECTION = """DELETE FROM NODES WHERE %s=ID; DELETE FROM CONNECTIONS WHERE %s in FROMNODE || TONODE;"""
 
@@ -79,6 +76,7 @@ except:
 
 
 def initTables():
+    #initializes tables if they dont already exist
     executeStatement(CREATE_PROJECTS_TABLE, None, False)
     executeStatement(CREATE_NODES_TABLE, None, False)
     executeStatement(CREATE_USERS_TABLE, None, False)
@@ -112,9 +110,13 @@ def getConnectionsByProject(userId, projectId):
     #return all the edges of the graph
     return executeStatement(GET_CONNECTIONS_BY_PROJECT, (projectId), True)
 
-def createGraph(userId):
-    executeStatement(CREATE_GRAPH, (userId, (None)))
-    pass
+def createGraph(owners, members):
+    #return projectId
+    return executeStatement(CREATE_GRAPH, (owners, members), True)[0][0]
+
+def createUser(name):
+    #creats a user and returns the id
+    return executeStatement(CREATE_USER, (name,), True)[0][0]
 
 #TODO work on permissions
 def verifyUserCanRead(userId, projectId):
@@ -128,3 +130,5 @@ def verifyUserCanEdit(userId, projectId):
 
 #START OF PROGRAM
 initTables()
+id = createUser("John Cena")[0][0]
+projectId = createGraph([id], [])
