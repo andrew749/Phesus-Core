@@ -166,21 +166,27 @@ def deleteConnection(connectionId):
     executeStatement(DELETE_CONNECTION, (connectionId), False)
 
 def updateConnection(userId, projectId, connectionId, type, fromnode, tonode, metadata):
+    #updates all fields
     executeStatement(UPDATE_CONNECTION, (type, tonode, fromnode, metadata, connectionId), False)
 
 def updateNode(userId, projectId, nodeId, x, y, type, content):
+    #updates all fields
     executeStatement(UPDATE_NODE, (x, y, type, content, nodeId),False)
 
 def checkIfNodeIsInProject(userId, projectId, nodeId):
+    #returns a boolean if a node is in a project
     return executeStatement(CHECK_IF_NODE_IS_IN_PROJECT, (nodeId, projectId), True)
 
 def checkIfConnectionIsInProject(userId, projectId, connectionId):
+    #returns a boolean if a connection is in a project
     return executeStatement(CHECK_IF_CONNECTION_IS_IN_PROJECT, (connectionId, projectId),True)
 
 def checkPermissionsNode(userId, nodeId, projectId):
+    #checks if a node is in the project
     return checkIfNodeIsInProject(userId, projectId, nodeId)
 
 def checkPermissionsConnection(userId, connectionId, projectId):
+    #checks the permissions for a conncetion
     return checkIfConnectionIsInProject(userId, projectId, connectionId)
 
 def checkIfUserIsInProject(userId, projectId):
@@ -205,6 +211,7 @@ def verifyUserCanEdit(userId, projectId):
 
 #START OF PROGRAM
 initTables()
+#SOME SAME COMMANDS
 # id = createUser("John Cena")
 # projectId = createGraph([id], [])
 # createNode(10, 10, NodeType.NORMAL, json.dumps({"test":"test"}), projectId)
