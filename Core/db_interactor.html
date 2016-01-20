@@ -44,7 +44,9 @@
 <td colspan=3 valign=bottom>&nbsp;<br>
 <font color="#000000" face="helvetica, arial"><a name="ConnectionType">class <strong>ConnectionType</strong></a>(<a href="builtins.html#object">builtins.object</a>)</font></td></tr>
     
-<tr><td bgcolor="#ffc8d8"><tt>&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>An&nbsp;enumeration&nbsp;of&nbsp;the&nbsp;different&nbsp;types&nbsp;of&nbsp;connections.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
 <td width="100%">Data descriptors defined here:<br>
 <dl><dt><strong>__dict__</strong></dt>
 <dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
@@ -64,7 +66,9 @@ Data and other attributes defined here:<br>
 <td colspan=3 valign=bottom>&nbsp;<br>
 <font color="#000000" face="helvetica, arial"><a name="NodeType">class <strong>NodeType</strong></a>(<a href="builtins.html#object">builtins.object</a>)</font></td></tr>
     
-<tr><td bgcolor="#ffc8d8"><tt>&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>An&nbsp;enumeration&nbsp;of&nbsp;the&nbsp;different&nbsp;types&nbsp;of&nbsp;nodes.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
 <td width="100%">Data descriptors defined here:<br>
 <dl><dt><strong>__dict__</strong></dt>
 <dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
@@ -84,7 +88,9 @@ Data and other attributes defined here:<br>
 <td colspan=3 valign=bottom>&nbsp;<br>
 <font color="#000000" face="helvetica, arial"><a name="PermissionType">class <strong>PermissionType</strong></a>(<a href="builtins.html#object">builtins.object</a>)</font></td></tr>
     
-<tr><td bgcolor="#ffc8d8"><tt>&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt>An&nbsp;enumeration&nbsp;of&nbsp;the&nbsp;different&nbsp;types&nbsp;of&nbsp;access&nbsp;to&nbsp;a&nbsp;project.<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
 <td width="100%">Data descriptors defined here:<br>
 <dl><dt><strong>__dict__</strong></dt>
 <dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
@@ -115,17 +121,48 @@ Data and other attributes defined here:<br>
  <dl><dt><a name="-checkPermission"><strong>checkPermission</strong></a>(userId, projectId)</dt></dl>
  <dl><dt><a name="-checkPermissionsConnection"><strong>checkPermissionsConnection</strong></a>(userId, connectionId, projectId)</dt></dl>
  <dl><dt><a name="-checkPermissionsNode"><strong>checkPermissionsNode</strong></a>(userId, nodeId, projectId)</dt></dl>
- <dl><dt><a name="-createConnection"><strong>createConnection</strong></a>(projectId, type, fromnode, tonode, metadata)</dt></dl>
- <dl><dt><a name="-createGraph"><strong>createGraph</strong></a>(owners, members)</dt></dl>
- <dl><dt><a name="-createNode"><strong>createNode</strong></a>(x, y, type, contentJson, projects)</dt></dl>
- <dl><dt><a name="-createUser"><strong>createUser</strong></a>(name)</dt></dl>
- <dl><dt><a name="-deleteConnection"><strong>deleteConnection</strong></a>(connectionId)</dt></dl>
- <dl><dt><a name="-deleteNode"><strong>deleteNode</strong></a>(nodeId)</dt></dl>
- <dl><dt><a name="-executeStatement"><strong>executeStatement</strong></a>(executableStatement, arguments, getResult)</dt><dd><tt>Helper&nbsp;method&nbsp;to&nbsp;execute&nbsp;a&nbsp;query&nbsp;and&nbsp;get&nbsp;responses</tt></dd></dl>
- <dl><dt><a name="-getConnectionsByProject"><strong>getConnectionsByProject</strong></a>(userId, projectId)</dt><dd><tt>return&nbsp;all&nbsp;the&nbsp;edges&nbsp;of&nbsp;the&nbsp;graph</tt></dd></dl>
- <dl><dt><a name="-getGraph"><strong>getGraph</strong></a>(userId, projectId)</dt><dd><tt>helper&nbsp;returns&nbsp;the&nbsp;json&nbsp;<a href="builtins.html#object">object</a>&nbsp;of&nbsp;the&nbsp;graph</tt></dd></dl>
- <dl><dt><a name="-getNodesByProject"><strong>getNodesByProject</strong></a>(userId, projectId)</dt><dd><tt>return&nbsp;an&nbsp;array&nbsp;of&nbsp;nodes&nbsp;for&nbsp;the&nbsp;project</tt></dd></dl>
- <dl><dt><a name="-initTables"><strong>initTables</strong></a>()</dt><dd><tt>Initializes&nbsp;tables&nbsp;if&nbsp;they&nbsp;dont&nbsp;already&nbsp;exist</tt></dd></dl>
+ <dl><dt><a name="-createConnection"><strong>createConnection</strong></a>(projectId, type, fromnode, tonode, metadata)</dt><dd><tt>A&nbsp;helper&nbsp;to&nbsp;create&nbsp;a&nbsp;connection.<br>
+:param&nbsp;projectId:&nbsp;The&nbsp;id&nbsp;of&nbsp;the&nbsp;project&nbsp;associated&nbsp;with&nbsp;the&nbsp;node.<br>
+:param&nbsp;type:&nbsp;The&nbsp;type&nbsp;of&nbsp;connection.<br>
+:param&nbsp;fromnode:&nbsp;The&nbsp;id&nbsp;of&nbsp;the&nbsp;origin&nbsp;node.<br>
+:param&nbsp;tonode:&nbsp;The&nbsp;id&nbsp;of&nbsp;the&nbsp;destination&nbsp;node.<br>
+:param&nbsp;metadata:&nbsp;Json&nbsp;formatted&nbsp;metadata&nbsp;associated&nbsp;with&nbsp;the&nbsp;connection.<br>
+:return&nbsp;The&nbsp;id&nbsp;of&nbsp;the&nbsp;created&nbsp;connection.</tt></dd></dl>
+ <dl><dt><a name="-createGraph"><strong>createGraph</strong></a>(owners, members)</dt><dd><tt>Helper&nbsp;to&nbsp;create&nbsp;a&nbsp;graph.<br>
+:param&nbsp;owners:&nbsp;Array&nbsp;of&nbsp;userId's&nbsp;to&nbsp;own&nbsp;the&nbsp;graph.<br>
+:param&nbsp;members:&nbsp;Array&nbsp;of&nbsp;userId's&nbsp;who&nbsp;are&nbsp;associated&nbsp;with&nbsp;the&nbsp;graph.<br>
+:return&nbsp;The&nbsp;new&nbsp;project&nbsp;id.</tt></dd></dl>
+ <dl><dt><a name="-createNode"><strong>createNode</strong></a>(x, y, type, contentJson, projectId)</dt><dd><tt>A&nbsp;helper&nbsp;to&nbsp;create&nbsp;a&nbsp;node.<br>
+:param&nbsp;x:&nbsp;The&nbsp;x&nbsp;coordinate&nbsp;of&nbsp;the&nbsp;node.<br>
+:param&nbsp;y:&nbsp;The&nbsp;y&nbsp;coordinate&nbsp;of&nbsp;the&nbsp;node.<br>
+:param&nbsp;type:&nbsp;The&nbsp;type&nbsp;of&nbsp;the&nbsp;node&nbsp;to&nbsp;create.&nbsp;See&nbsp;NodeTypes.<br>
+:param&nbsp;contentJson:&nbsp;The&nbsp;content&nbsp;for&nbsp;the&nbsp;node.<br>
+:param&nbsp;projectId:&nbsp;The&nbsp;project&nbsp;that&nbsp;the&nbsp;node&nbsp;is&nbsp;associated&nbsp;with.<br>
+:return&nbsp;The&nbsp;node&nbsp;id&nbsp;of&nbsp;the&nbsp;newly&nbsp;created&nbsp;node.</tt></dd></dl>
+ <dl><dt><a name="-createUser"><strong>createUser</strong></a>(name)</dt><dd><tt>A&nbsp;helper&nbsp;to&nbsp;create&nbsp;a&nbsp;user.<br>
+:param&nbsp;name:The&nbsp;name&nbsp;of&nbsp;the&nbsp;user.<br>
+:return&nbsp;The&nbsp;id&nbsp;of&nbsp;the&nbsp;newly&nbsp;created&nbsp;user.</tt></dd></dl>
+ <dl><dt><a name="-deleteConnection"><strong>deleteConnection</strong></a>(connectionId)</dt><dd><tt>Helper&nbsp;to&nbsp;delete&nbsp;a&nbsp;connection.<br>
+:param&nbsp;connectionId:&nbsp;Id&nbsp;of&nbsp;the&nbsp;connection&nbsp;to&nbsp;delete.</tt></dd></dl>
+ <dl><dt><a name="-deleteNode"><strong>deleteNode</strong></a>(nodeId)</dt><dd><tt>Helper&nbsp;to&nbsp;delete&nbsp;a&nbsp;node.<br>
+:param&nbsp;nodeId:&nbsp;Id&nbsp;of&nbsp;the&nbsp;node&nbsp;to&nbsp;delete.</tt></dd></dl>
+ <dl><dt><a name="-executeStatement"><strong>executeStatement</strong></a>(executableStatement, arguments, getResult)</dt><dd><tt>Helper&nbsp;method&nbsp;to&nbsp;execute&nbsp;a&nbsp;query&nbsp;and&nbsp;get&nbsp;responses.<br>
+:param&nbsp;executableStatement:&nbsp;A&nbsp;string&nbsp;of&nbsp;the&nbsp;database&nbsp;query&nbsp;to&nbsp;perform.<br>
+:param&nbsp;arguments:&nbsp;A&nbsp;tuple&nbsp;of&nbsp;the&nbsp;arguments&nbsp;to&nbsp;insert&nbsp;into&nbsp;the&nbsp;executable&nbsp;statement.<br>
+:param&nbsp;getResult:&nbsp;Boolean&nbsp;representing&nbsp;whether&nbsp;or&nbsp;not&nbsp;to&nbsp;return&nbsp;something&nbsp;at&nbsp;the&nbsp;end&nbsp;of&nbsp;the&nbsp;query.<br>
+:return&nbsp;returns&nbsp;the&nbsp;query&nbsp;if&nbsp;specified&nbsp;in&nbsp;getResult</tt></dd></dl>
+ <dl><dt><a name="-getConnectionsByProject"><strong>getConnectionsByProject</strong></a>(userId, projectId)</dt><dd><tt>Return&nbsp;all&nbsp;the&nbsp;edges&nbsp;of&nbsp;the&nbsp;graph.<br>
+:param&nbsp;userId:&nbsp;Id<br>
+:param&nbsp;projectId:&nbsp;Project&nbsp;Id</tt></dd></dl>
+ <dl><dt><a name="-getGraph"><strong>getGraph</strong></a>(userId, projectId)</dt><dd><tt>Helper&nbsp;returns&nbsp;the&nbsp;json&nbsp;<a href="builtins.html#object">object</a>&nbsp;of&nbsp;the&nbsp;graph.<br>
+:param&nbsp;userId:&nbsp;The&nbsp;unique&nbsp;userId.<br>
+:param&nbsp;projectId:&nbsp;The&nbsp;unique&nbsp;id&nbsp;of&nbsp;the&nbsp;project&nbsp;to&nbsp;get.<br>
+:return&nbsp;A&nbsp;dictionary&nbsp;containing&nbsp;the&nbsp;nodes&nbsp;and&nbsp;connections&nbsp;of&nbsp;the&nbsp;project.</tt></dd></dl>
+ <dl><dt><a name="-getNodesByProject"><strong>getNodesByProject</strong></a>(userId, projectId)</dt><dd><tt>Return&nbsp;an&nbsp;array&nbsp;of&nbsp;nodes&nbsp;for&nbsp;the&nbsp;project.<br>
+:param&nbsp;userId:&nbsp;The&nbsp;id&nbsp;of&nbsp;the&nbsp;user&nbsp;to&nbsp;access&nbsp;the&nbsp;project.<br>
+:param&nbsp;projectId:&nbsp;The&nbsp;id&nbsp;of&nbsp;the&nbsp;project&nbsp;to&nbsp;get&nbsp;the&nbsp;nodes&nbsp;for.<br>
+:return&nbsp;Rows&nbsp;each&nbsp;representing&nbsp;a&nbsp;node&nbsp;of&nbsp;the&nbsp;project.</tt></dd></dl>
+ <dl><dt><a name="-initTables"><strong>initTables</strong></a>()</dt><dd><tt>Initializes&nbsp;tables&nbsp;if&nbsp;they&nbsp;dont&nbsp;already&nbsp;exist.</tt></dd></dl>
  <dl><dt><a name="-updateConnection"><strong>updateConnection</strong></a>(userId, projectId, connectionId, type, fromnode, tonode, metadata)</dt></dl>
  <dl><dt><a name="-updateNode"><strong>updateNode</strong></a>(userId, projectId, nodeId, x, y, type, content)</dt></dl>
  <dl><dt><a name="-verifyUserCanEdit"><strong>verifyUserCanEdit</strong></a>(userId, projectId)</dt></dl>
@@ -161,6 +198,6 @@ Data and other attributes defined here:<br>
 <strong>UPDATE_NODE</strong> = 'UPDATE NODES SET x = %s, y = %s, type = %s, content = %s,   where ID = %s;'<br>
 <strong>VERIFY_NODE_IS_IN_PROJECT</strong> = '<font color="#c040c0">\n</font>    SELECT EXISTS(<font color="#c040c0">\n</font>    SELECT * FROM NODES WHERE %s=ID AND %s=PROJECT;<font color="#c040c0">\n</font>    );<font color="#c040c0">\n</font>'<br>
 <strong>VERIFY_USER_IS_PART_OF_PROJECT</strong> = '<font color="#c040c0">\n</font>    SELECT EXISTS (<font color="#c040c0">\n</font>    SELECT * FROM PROJECTS WHERE %s in OWNERS || MEMBERS;<font color="#c040c0">\n</font>    );<font color="#c040c0">\n</font>'<br>
-<strong>conn</strong> = &lt;connection object at 0x10c775d00; dsn: 'dbname=...y' host='localhost' password=xxxxxxx', closed: 0&gt;<br>
-<strong>cur</strong> = &lt;cursor object at 0x10c84b9a8; closed: 0&gt;</td></tr></table>
+<strong>conn</strong> = &lt;connection object at 0x10fc87d00; dsn: 'dbname=...y' host='localhost' password=xxxxxxx', closed: 0&gt;<br>
+<strong>cur</strong> = &lt;cursor object at 0x10fd2a9a8; closed: 0&gt;</td></tr></table>
 </body></html>

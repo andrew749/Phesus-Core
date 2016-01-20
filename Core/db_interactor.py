@@ -178,28 +178,53 @@ def createGraph(owners, members):
     """
     return executeStatement(CREATE_GRAPH, (owners, members), True)[0][0]
 
-def createNode(x, y, type, contentJson, projects):
-    #return the nodeId
+def createNode(x, y, type, contentJson, projectId):
+    """
+    A helper to create a node.
+    :param x: The x coordinate of the node.
+    :param y: The y coordinate of the node.
+    :param type: The type of the node to create. See NodeTypes.
+    :param contentJson: The content for the node.
+    :param projectId: The project that the node is associated with.
+    :return The node id of the newly created node.
+    """
     return executeStatement(CREATE_NODE, (x, y, type, contentJson, projectId), True)
 
 def createUser(name):
-    #creats a user and returns the id
+    """
+    A helper to create a user.
+    :param name:The name of the user.
+    :return The id of the newly created user.
+    """
     return executeStatement(CREATE_USER, (name,), True)[0][0]
 
 def createConnection(projectId, type, fromnode, tonode, metadata):
-    #create a connection and return the id
+    """
+    A helper to create a connection.
+    :param projectId: The id of the project associated with the node.
+    :param type: The type of connection.
+    :param fromnode: The id of the origin node.
+    :param tonode: The id of the destination node.
+    :param metadata: Json formatted metadata associated with the connection.
+    :return The id of the created connection.
+    """
     return executeStatement(CREATE_CONNECTION, (projectId, type, fromnode, tonode, metadata), True)
 
 def deleteNode(nodeId):
-    #delete a node
+    """
+    Helper to delete a node.
+    :param nodeId: Id of the node to delete.
+    """
     executeStatement(DELETE_NODE, (nodeId, nodeId), False)
 
 def deleteConnection(connectionId):
-    #delete a connection
+    """
+    Helper to delete a connection.
+    :param connectionId: Id of the connection to delete.
+    """
     executeStatement(DELETE_CONNECTION, (connectionId), False)
 
 def updateConnection(userId, projectId, connectionId, type, fromnode, tonode, metadata):
-    #updates all fields
     executeStatement(UPDATE_CONNECTION, (type, tonode, fromnode, metadata, connectionId), False)
 
 def updateNode(userId, projectId, nodeId, x, y, type, content):
@@ -247,8 +272,10 @@ def verifyUserCanEdit(userId, projectId):
 
 
 #START OF PROGRAM
-# initTables()
-#SOME SAME COMMANDS
+#will create the tables if they don't exist
+initTables()
+
+#SOME SAMPLE COMMANDS
 # id = createUser("John Cena")
 # projectId = createGraph([id], [])
 # createNode(10, 10, NodeType.NORMAL, json.dumps({"test":"test"}), projectId)
