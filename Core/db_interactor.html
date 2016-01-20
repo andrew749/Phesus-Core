@@ -1,0 +1,166 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module db_interactor</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>db_interactor</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/Users/andrewcodispoti/Documents/Programming/Phesus-Core/Core/db_interactor.py">/Users/andrewcodispoti/Documents/Programming/Phesus-Core/Core/db_interactor.py</a></font></td></tr></table>
+    <p><tt>#Database&nbsp;adapter</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="json.html">json</a><br>
+</td><td width="25%" valign=top><a href="os.html">os</a><br>
+</td><td width="25%" valign=top><a href="pdb.html">pdb</a><br>
+</td><td width="25%" valign=top><a href="psycopg2.html">psycopg2</a><br>
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="builtins.html#object">builtins.object</a>
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="db_interactor.html#ConnectionType">ConnectionType</a>
+</font></dt><dt><font face="helvetica, arial"><a href="db_interactor.html#NodeType">NodeType</a>
+</font></dt><dt><font face="helvetica, arial"><a href="db_interactor.html#PermissionType">PermissionType</a>
+</font></dt></dl>
+</dd>
+</dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="ConnectionType">class <strong>ConnectionType</strong></a>(<a href="builtins.html#object">builtins.object</a>)</font></td></tr>
+    
+<tr><td bgcolor="#ffc8d8"><tt>&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%">Data descriptors defined here:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<hr>
+Data and other attributes defined here:<br>
+<dl><dt><strong>BIDIRECTIONAL</strong> = 'bi'</dl>
+
+<dl><dt><strong>NORMAL</strong> = 'normal'</dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="NodeType">class <strong>NodeType</strong></a>(<a href="builtins.html#object">builtins.object</a>)</font></td></tr>
+    
+<tr><td bgcolor="#ffc8d8"><tt>&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%">Data descriptors defined here:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<hr>
+Data and other attributes defined here:<br>
+<dl><dt><strong>DIAMOND</strong> = 'diamond'</dl>
+
+<dl><dt><strong>NORMAL</strong> = 'normal'</dl>
+
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="PermissionType">class <strong>PermissionType</strong></a>(<a href="builtins.html#object">builtins.object</a>)</font></td></tr>
+    
+<tr><td bgcolor="#ffc8d8"><tt>&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%">Data descriptors defined here:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<hr>
+Data and other attributes defined here:<br>
+<dl><dt><strong>READ</strong> = 1</dl>
+
+<dl><dt><strong>READWRITE</strong> = 3</dl>
+
+<dl><dt><strong>WRITE</strong> = 2</dl>
+
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-checkIfConnectionIsInProject"><strong>checkIfConnectionIsInProject</strong></a>(userId, projectId, connectionId)</dt></dl>
+ <dl><dt><a name="-checkIfNodeIsInProject"><strong>checkIfNodeIsInProject</strong></a>(userId, projectId, nodeId)</dt></dl>
+ <dl><dt><a name="-checkIfUserExists"><strong>checkIfUserExists</strong></a>(userId)</dt></dl>
+ <dl><dt><a name="-checkIfUserIsInProject"><strong>checkIfUserIsInProject</strong></a>(userId, projectId)</dt></dl>
+ <dl><dt><a name="-checkLogin"><strong>checkLogin</strong></a>(userId, password)</dt></dl>
+ <dl><dt><a name="-checkPermission"><strong>checkPermission</strong></a>(userId, projectId)</dt></dl>
+ <dl><dt><a name="-checkPermissionsConnection"><strong>checkPermissionsConnection</strong></a>(userId, connectionId, projectId)</dt></dl>
+ <dl><dt><a name="-checkPermissionsNode"><strong>checkPermissionsNode</strong></a>(userId, nodeId, projectId)</dt></dl>
+ <dl><dt><a name="-createConnection"><strong>createConnection</strong></a>(projectId, type, fromnode, tonode, metadata)</dt></dl>
+ <dl><dt><a name="-createGraph"><strong>createGraph</strong></a>(owners, members)</dt></dl>
+ <dl><dt><a name="-createNode"><strong>createNode</strong></a>(x, y, type, contentJson, projects)</dt></dl>
+ <dl><dt><a name="-createUser"><strong>createUser</strong></a>(name)</dt></dl>
+ <dl><dt><a name="-deleteConnection"><strong>deleteConnection</strong></a>(connectionId)</dt></dl>
+ <dl><dt><a name="-deleteNode"><strong>deleteNode</strong></a>(nodeId)</dt></dl>
+ <dl><dt><a name="-executeStatement"><strong>executeStatement</strong></a>(executableStatement, arguments, getResult)</dt><dd><tt>Helper&nbsp;method&nbsp;to&nbsp;execute&nbsp;a&nbsp;query&nbsp;and&nbsp;get&nbsp;responses</tt></dd></dl>
+ <dl><dt><a name="-getConnectionsByProject"><strong>getConnectionsByProject</strong></a>(userId, projectId)</dt><dd><tt>return&nbsp;all&nbsp;the&nbsp;edges&nbsp;of&nbsp;the&nbsp;graph</tt></dd></dl>
+ <dl><dt><a name="-getGraph"><strong>getGraph</strong></a>(userId, projectId)</dt><dd><tt>helper&nbsp;returns&nbsp;the&nbsp;json&nbsp;<a href="builtins.html#object">object</a>&nbsp;of&nbsp;the&nbsp;graph</tt></dd></dl>
+ <dl><dt><a name="-getNodesByProject"><strong>getNodesByProject</strong></a>(userId, projectId)</dt><dd><tt>return&nbsp;an&nbsp;array&nbsp;of&nbsp;nodes&nbsp;for&nbsp;the&nbsp;project</tt></dd></dl>
+ <dl><dt><a name="-initTables"><strong>initTables</strong></a>()</dt><dd><tt>Initializes&nbsp;tables&nbsp;if&nbsp;they&nbsp;dont&nbsp;already&nbsp;exist</tt></dd></dl>
+ <dl><dt><a name="-updateConnection"><strong>updateConnection</strong></a>(userId, projectId, connectionId, type, fromnode, tonode, metadata)</dt></dl>
+ <dl><dt><a name="-updateNode"><strong>updateNode</strong></a>(userId, projectId, nodeId, x, y, type, content)</dt></dl>
+ <dl><dt><a name="-verifyUserCanEdit"><strong>verifyUserCanEdit</strong></a>(userId, projectId)</dt></dl>
+ <dl><dt><a name="-verifyUserCanRead"><strong>verifyUserCanRead</strong></a>(userId, projectId)</dt></dl>
+</td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>CHECK_IF_CONNECTION_IS_IN_PROJECT</strong> = '<font color="#c040c0">\n</font>SELECT EXISTS (<font color="#c040c0">\n</font>    SELECT * FROM CONNECTIONS WHERE ID = %s AND project = %s<font color="#c040c0">\n</font>    );<font color="#c040c0">\n</font>'<br>
+<strong>CHECK_IF_NODE_IS_IN_PROJECT</strong> = '<font color="#c040c0">\n</font>SELECT EXISTS (<font color="#c040c0">\n</font>    SELECT * FROM NODES WHERE ID = %s AND project = %s<font color="#c040c0">\n</font>    );<font color="#c040c0">\n</font>'<br>
+<strong>CHECK_IF_USER_EXISTS</strong> = '<font color="#c040c0">\n</font>SELECT EXISTS(<font color="#c040c0">\n</font>    SELECT * FROM USERS WHERE %s=ID<font color="#c040c0">\n</font>);<font color="#c040c0">\n</font>'<br>
+<strong>CHECK_IF_USER_IS_IN_PROJECT</strong> = '<font color="#c040c0">\n</font>SELECT EXISTS (<font color="#c040c0">\n</font>    SELECT * FROM PROJECTS WHERE %s=ID AND %s in OWNERS<font color="#c040c0">\n</font>    );<font color="#c040c0">\n</font>'<br>
+<strong>CREATE_CONNECTION</strong> = 'INSERT INTO CONNECTIONS (PROJECT, TYPE, FROMNODE...TADATA) VALUES (%s, %s, %s, %s, %s) RETURNING ID;'<br>
+<strong>CREATE_CONNECTION_TABLE</strong> = '<font color="#c040c0">\n</font>    CREATE TABLE IF NOT EXISTS CONNECTIONS (<font color="#c040c0">\n</font>  ...   TONODE INT NOT NULL,<font color="#c040c0">\n</font>    METADATA JSON<font color="#c040c0">\n</font>    );<font color="#c040c0">\n</font>'<br>
+<strong>CREATE_GRAPH</strong> = 'INSERT INTO PROJECTS (OWNERS, MEMBERS) VALUES (%s, %s) RETURNING ID;'<br>
+<strong>CREATE_NODE</strong> = 'INSERT INTO NODES (X,Y,TYPE,CONTENT,PROJECT) VALUES (%s, %s, %s, %s, %s) RETURNING ID;'<br>
+<strong>CREATE_NODES_TABLE</strong> = '<font color="#c040c0">\n</font>    CREATE TABLE IF NOT EXISTS NODES (<font color="#c040c0">\n</font>    ID U...JECT INT NOT NULL REFERENCES PROJECTS(ID)<font color="#c040c0">\n</font>    );<font color="#c040c0">\n</font>'<br>
+<strong>CREATE_PROJECTS_TABLE</strong> = '<font color="#c040c0">\n</font>    CREATE TABLE IF NOT EXISTS PROJECTS (<font color="#c040c0">\n</font>    I... OWNERS INT[] NOT NULL,<font color="#c040c0">\n</font>    MEMBERS INT[]<font color="#c040c0">\n</font>    );<font color="#c040c0">\n</font>'<br>
+<strong>CREATE_USER</strong> = 'INSERT INTO USERS (NAME) VALUES (%s) RETURNING ID;'<br>
+<strong>CREATE_USERS_TABLE</strong> = '<font color="#c040c0">\n</font>    CREATE TABLE IF NOT EXISTS USERS (<font color="#c040c0">\n</font>    ID BIGSERIAL PRIMARY KEY NOT NULL,<font color="#c040c0">\n</font>    NAME TEXT<font color="#c040c0">\n</font>    );<font color="#c040c0">\n</font>'<br>
+<strong>DB_HOST</strong> = 'localhost'<br>
+<strong>DB_NAME</strong> = 'phesus'<br>
+<strong>DB_PASS</strong> = 'dummy'<br>
+<strong>DB_USER</strong> = 'dummy'<br>
+<strong>DELETE_CONNECTION</strong> = 'DELETE FROM CONNECTIONS WHERE %s = ID; '<br>
+<strong>DELETE_NODE</strong> = 'DELETE FROM NODES WHERE %s=ID; DELETE FROM CONNECTIONS WHERE %s in FROMNODE || TONODE;'<br>
+<strong>GET_CONNECTIONS_BY_PROJECT</strong> = '<font color="#c040c0">\n</font>    SELECT * FROM CONNECTIONS WHERE PROJECT=%s;<font color="#c040c0">\n</font>'<br>
+<strong>GET_NODES_BY_PROJECT</strong> = '<font color="#c040c0">\n</font>    SELECT * FROM NODES WHERE PROJECT=%s;<font color="#c040c0">\n</font>'<br>
+<strong>UPDATE_CONNECTION</strong> = 'UPDATE CONNECTIONS SET type = %s, tonode = %s, fromnode = %s, metadata = %s where ID = %s;'<br>
+<strong>UPDATE_NODE</strong> = 'UPDATE NODES SET x = %s, y = %s, type = %s, content = %s,   where ID = %s;'<br>
+<strong>VERIFY_NODE_IS_IN_PROJECT</strong> = '<font color="#c040c0">\n</font>    SELECT EXISTS(<font color="#c040c0">\n</font>    SELECT * FROM NODES WHERE %s=ID AND %s=PROJECT;<font color="#c040c0">\n</font>    );<font color="#c040c0">\n</font>'<br>
+<strong>VERIFY_USER_IS_PART_OF_PROJECT</strong> = '<font color="#c040c0">\n</font>    SELECT EXISTS (<font color="#c040c0">\n</font>    SELECT * FROM PROJECTS WHERE %s in OWNERS || MEMBERS;<font color="#c040c0">\n</font>    );<font color="#c040c0">\n</font>'<br>
+<strong>conn</strong> = &lt;connection object at 0x10c775d00; dsn: 'dbname=...y' host='localhost' password=xxxxxxx', closed: 0&gt;<br>
+<strong>cur</strong> = &lt;cursor object at 0x10c84b9a8; closed: 0&gt;</td></tr></table>
+</body></html>

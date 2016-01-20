@@ -10,14 +10,17 @@ DB_PASS = 'dummy'
 DB_HOST = 'localhost'
 
 class NodeType:
+    """An enumeration of the different types of nodes."""
     NORMAL = "normal"
     DIAMOND = "diamond"
 
 class ConnectionType:
+    """An enumeration of the different types of connections."""
     NORMAL = "normal"
     BIDIRECTIONAL = "bi"
 
 class PermissionType:
+    """An enumeration of the different types of access to a project."""
     READ = 1
     WRITE = 2
     READWRITE = 3
@@ -97,6 +100,11 @@ SELECT EXISTS (
     SELECT * FROM PROJECTS WHERE %s=ID AND %s in OWNERS
     );
 """
+CHECK_IF_USER_EXISTS = """
+SELECT EXISTS(
+    SELECT * FROM USERS WHERE %s=ID
+);
+"""
 
 #database connection code
 try:
@@ -107,14 +115,20 @@ except:
 
 
 def initTables():
-    #initializes tables if they dont already exist
+    """ Initializes tables if they dont already exist."""
     executeStatement(CREATE_PROJECTS_TABLE, None, False)
     executeStatement(CREATE_NODES_TABLE, None, False)
     executeStatement(CREATE_USERS_TABLE, None, False)
     executeStatement(CREATE_CONNECTION_TABLE, None, False)
 
 def executeStatement(executableStatement, arguments, getResult):
-    # helper method to execute a query and get responses
+    """
+    Helper method to execute a query and get responses.
+    :param executableStatement: A string of the database query to perform.
+    :param arguments: A tuple of the arguments to insert into the executable statement.
+    :param getResult: Boolean representing whether or not to return something at the end of the query.
+    :return returns the query if specified in getResult
+    """
     if (arguments is not None):
         cur.execute(executableStatement, arguments)
     else:
@@ -125,7 +139,12 @@ def executeStatement(executableStatement, arguments, getResult):
         return rows
 
 def getGraph(userId, projectId):
-#helper returns the json object of the graph
+    """
+    Helper returns the json object of the graph.
+    :param userId: The unique userId.
+    :param projectId: The unique id of the project to get.
+    :return A dictionary containing the nodes and connections of the project.
+    """
     if(verifyUserCanRead(userId, projectId)):
         nodes = getNodesByProject(userId, projectId)
         connections = getConnectionsByProject(userId, projectId)
@@ -134,15 +153,29 @@ def getGraph(userId, projectId):
         return json.dumps({"status":"ERROR"})
 
 def getNodesByProject(userId, projectId):
-    #return an array of nodes for the project
+    """
+    Return an array of nodes for the project.
+    :param userId: The id of the user to access the project.
+    :param projectId: The id of the project to get the nodes for.
+    :return Rows each representing a node of the project.
+    """
     return executeStatement(GET_NODES_BY_PROJECT,  (projectId,), True)
 
 def getConnectionsByProject(userId, projectId):
-    #return all the edges of the graph
+    """
+    Return all the edges of the graph.
+    :param userId: Id
+    :param projectId: Project Id
+    """
     return executeStatement(GET_CONNECTIONS_BY_PROJECT, (projectId,), True)
 
 def createGraph(owners, members):
-    #return projectId
+    """
+    Helper to create a graph.
+    :param owners: Array of userId's to own the graph.
+    :param members: Array of userId's who are associated with the graph.
+    :return The new project id.
+    """
     return executeStatement(CREATE_GRAPH, (owners, members), True)[0][0]
 
 def createNode(x, y, type, contentJson, projects):
@@ -192,14 +225,18 @@ def checkPermissionsConnection(userId, connectionId, projectId):
 def checkIfUserIsInProject(userId, projectId):
     return executeStatement(CHECK_IF_USER_IS_IN_PROJECT, (projectId, userId), True)
 
+def checkIfUserExists(userId):
+    return executeStatement(CHECK_IF_USER_EXISTS, (userId), True)
+
 def checkPermission(userId, projectId):
     if(checkIfUserIsInProject(userId, projectId)):
         return True
     else:
         return False
 
+def checkLogin(userId, password):
+    return checkIfUserExists(userId)
 
-#TODO work on permissions
 def verifyUserCanRead(userId, projectId):
     #return boolean if the user can ready
     return True
@@ -210,10 +247,10 @@ def verifyUserCanEdit(userId, projectId):
 
 
 #START OF PROGRAM
-initTables()
+# initTables()
 #SOME SAME COMMANDS
 # id = createUser("John Cena")
 # projectId = createGraph([id], [])
 # createNode(10, 10, NodeType.NORMAL, json.dumps({"test":"test"}), projectId)
 # createConnection(projectId,ConnectionType.BIDIRECTIONAL, id, id - 1, json.dumps({"test":"TEST"}))
-print (getGraph(id, 9))
+# print (getGraph(id, 9))
