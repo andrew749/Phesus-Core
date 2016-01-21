@@ -40,7 +40,8 @@
   "dependencies": {
     "lodash": "^4.0.0",
     "react": "^0.14.0",
-    "react-dom": "^0.14.0"
+    "react-dom": "^0.14.0",
+    "svg-intersections": "^0.2.3"
   },
   "eslintConfig": {
     "parser": "babel-eslint",

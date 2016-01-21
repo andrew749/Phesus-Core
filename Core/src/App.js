@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
 import Graph from './graph';
-import Node from './node';
-import Edge from './edge';
 let Dispatcher = require('./dispatcher');
 let _ = require('lodash');
 
@@ -42,42 +40,21 @@ export default class App extends Component {
       nodes: sampleContent.nodes,
       edges: sampleContent.connections
     };
+  }
+  componentDidMount() {
     Dispatcher
       .on('node_changed', (data) => this.setState({
-        nodes: _.merge(this.state.nodes, {[data.id]: data.changed})
-      }))
+        nodes: _.merge({}, this.state.nodes, {[data.id]: data.changed})
+      }, ()=>console.log(this.state.nodes)))
       .on('edge_changed', (data) => this.setState({
-        edges: _.merge(this.state.edges, {[data.id]: data.changed})
+        edges: _.merge({}, this.state.edges, {[data.id]: data.changed})
       }));
   }
   render() {
-    let nodes = _.map(this.state.nodes, (node, id) => {
-     return (<Node 
-        id={id}
-        key={id}
-        x={node.x}
-        y={node.y}
-        content={node.content}
-      />);
-    });
-    let edges = _.map(this.state.edges, (edge, id) => {
-      return (<Edge
-        id={id}
-        key={id}
-        x1={this.state.nodes[edge.from].x}
-        y1={this.state.nodes[edge.from].y}
-        x2={this.state.nodes[edge.to].x}
-        y2={this.state.nodes[edge.to].y}
-      />);
-    });
-
     return (
       <div className='app'>
         <h1>Phesus</h1>
-        <Graph>
-          {_.toArray(edges)}
-          {_.toArray(nodes)}
-        </Graph>
+        <Graph nodes={this.state.nodes} edges={this.state.edges} />
       </div>
     );
   }
