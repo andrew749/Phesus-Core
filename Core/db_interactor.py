@@ -138,6 +138,7 @@ def executeStatement(executableStatement, arguments, getResult):
         rows = cur.fetchall()
         return rows
 
+@CanRead
 def getGraph(uid=userId,
              pid=projectId):
     """
@@ -153,6 +154,7 @@ def getGraph(uid=userId,
     else:
         return json.dumps({"status":"ERROR"})
 
+@CanRead
 def getNodesByProject(uid=userId,
                       pid=projectId):
     """
@@ -163,6 +165,7 @@ def getNodesByProject(uid=userId,
     """
     return executeStatement(GET_NODES_BY_PROJECT,  (projectId,), True)
 
+@CanRead
 def getConnectionsByProject(uid=userId,
                             pid=projectId):
     """
@@ -255,22 +258,24 @@ def updateNode(uid=userId,
     #updates all fields
     executeStatement(UPDATE_NODE, (x, y, type, content, nodeId),False)
 
+@CanRead
 def checkIfNodeIsInProject(uid=userId,
                            pid=projectId,
                            nodeId=nodeId):
-    #returns a boolean if a node is in a project
+    """returns a boolean if a node is in a project"""
     return executeStatement(CHECK_IF_NODE_IS_IN_PROJECT, (nodeId, projectId), True)
 
+@CanRead
 def checkIfConnectionIsInProject(uid=userId,
                                  pid=projectId,
                                  connectionId=connectionId):
-    #returns a boolean if a connection is in a project
+    """returns a boolean if a connection is in a project"""
     return executeStatement(CHECK_IF_CONNECTION_IS_IN_PROJECT, (connectionId, projectId),True)
 
 def checkPermissionsNode(uid=userId,
                          pid=projectId,
                          nodeId=nodeId):
-    #checks if a node is in the project
+    """checks if a node is in the project"""
     return checkIfNodeIsInProject(userId, projectId, nodeId)
 
 def checkPermissionsConnection(uid=userId,
@@ -293,12 +298,26 @@ def checkPermission(uid=userId,
     else:
         return False
 
+""" Helper functions that decorate other functions,
+    can check authentication and read and write
+    permissions here.
+"""
 def CanRead(func):
+    """Decorator to wrap functions and restrict access if a user can't read"""
     def i(*args, **kwargs):
         if(checkIfUserExists(kwargs.uid)):
             return func(*args, **kwargs)
         else:
-            raise Exception()
+            return json.dumps({"ERROR":"Cannot Read"})
+    return i
+
+def CanWrite(func):
+    """Same as read but with write permissions"""
+    def i(*args, **kwargs):
+        if(checkIfUserExists(kwargs.uid)):
+            return func(*args, **kwargs)
+        else:
+            return json.dumps({"ERROR":"Cannot Read"})
     return i
 
 def checkLogin(uid=userId,
@@ -319,6 +338,8 @@ def verifyUserCanEdit(uid=userId,
 #START OF PROGRAM
 #will create the tables if they don't exist
 initTables()
+
+
 
 #SOME SAMPLE COMMANDS
 # id = createUser("John Cena")
