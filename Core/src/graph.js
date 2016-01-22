@@ -4,6 +4,9 @@ import Node from './node';
 let ReactDOM = require('react-dom');
 let Dispatcher = require('./dispatcher');
 let _ = require('lodash');
+let svgIntersections = require('svg-intersections');
+let intersect = svgIntersections.intersect;
+let shape = svgIntersections.shape;
 
 export default class Graph extends Component {
   componentDidMount() {
@@ -23,10 +26,24 @@ export default class Graph extends Component {
         key={id}
         x={node.x}
         y={node.y}
+        width={node.width || 0}
+        height={node.height || 0}
         content={node.content}
       />);
     });
     let edges = _.mapValues(this.props.edges, (edge, id) => {
+      let intersection = intersect(
+        shape('line', {
+          x1: this.props.nodes[edge.from].x,
+          y1: this.props.nodes[edge.from].y,
+          x2: this.props.nodes[edge.to].x,
+          y2: this.props.nodes[edge.to].y
+        }),
+        shape(...Node.ABSOLUTE(
+          this.props.nodes[edge.to],
+          Node.SHAPE_FROM(this.props.nodes[edge.to])
+        ))
+      );
       return (<Edge
         id={id}
         key={id}
@@ -36,6 +53,12 @@ export default class Graph extends Component {
         y1={this.props.nodes[edge.from].y}
         x2={this.props.nodes[edge.to].x}
         y2={this.props.nodes[edge.to].y}
+        x3={intersection.points.length ? intersection.points[0].x : 0}
+        y3={intersection.points.length ? intersection.points[0].y : 0}
+        angle={Math.atan2(
+          this.props.nodes[edge.to].y - this.props.nodes[edge.from].y,
+          this.props.nodes[edge.to].x - this.props.nodes[edge.from].x
+        ) * 180 / Math.PI}
       />);
     });
     return(
