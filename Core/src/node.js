@@ -21,7 +21,6 @@ export default class Node extends Component {
     let padding = 10;
     let w = box.width + 2*padding;
     let h = box.height + 2*padding;
-    console.log(w, h);
     autosized.setAttribute('width', w);
     autosized.setAttribute('height', h);
     autosized.setAttribute('x', -w/2);

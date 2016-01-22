@@ -12,7 +12,7 @@ let sampleContent = {
     },
     '2': {
       x: 200,
-      y: 100,
+      y: -30,
       content: {title: 'How\'s it going?'}
     },
     '3': {
@@ -45,7 +45,7 @@ export default class App extends Component {
     Dispatcher
       .on('node_changed', (data) => this.setState({
         nodes: _.merge({}, this.state.nodes, {[data.id]: data.changed})
-      }, ()=>console.log(this.state.nodes)))
+      }))
       .on('edge_changed', (data) => this.setState({
         edges: _.merge({}, this.state.edges, {[data.id]: data.changed})
       }));
