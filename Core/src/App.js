@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import Graph from './graph';
 let Dispatcher = require('./dispatcher');
 let _ = require('lodash');
+let update = require('react-addons-update');
 
 let sampleContent = {
   nodes: {
@@ -40,15 +41,19 @@ export default class App extends Component {
       nodes: sampleContent.nodes,
       edges: sampleContent.connections
     };
-  }
-  componentDidMount() {
     Dispatcher
-      .on('node_changed', (data) => this.setState({
-        nodes: _.merge({}, this.state.nodes, {[data.id]: data.changed})
-      }))
-      .on('edge_changed', (data) => this.setState({
-        edges: _.merge({}, this.state.edges, {[data.id]: data.changed})
-      }));
+      .on('node_changed', (data) => this.setState((state) => {
+        for (var key in data.changed) {
+          state.nodes[data.id][key] = data.changed[key];
+        }
+        return state;
+      }, () => console.log(this.state.nodes)))
+      .on('edge_changed', (data) => this.setState((state) => {
+        for (var key in data.changed) {
+          state.edges[data.id][key] = data.changed[key];
+        }
+        return state;
+      }, () => console.log(this.state.edges)));
   }
   render() {
     return (

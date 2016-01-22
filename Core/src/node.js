@@ -5,6 +5,12 @@ let _ = require('lodash');
 let ReactDOM = require('react-dom');
 
 export default class Node extends Component {
+  static defaultProps = {
+    ...Component.defaultProps,
+    width: 0,
+    height: 0
+  };
+  static PADDING = 10;
   constructor(props) {
     super(props);
     this.beginDrag = this.beginDrag.bind(this);
@@ -13,20 +19,20 @@ export default class Node extends Component {
   }
   componentDidMount() {
     this.element = ReactDOM.findDOMNode(this);
-
-    var autosized = this.element.querySelector('.autosized');
-    let content = this.element.querySelector('.content');
-
-    let box = content.getBBox();
-    let padding = 10;
-    let w = box.width + 2*padding;
-    let h = box.height + 2*padding;
-    autosized.setAttribute('width', w);
-    autosized.setAttribute('height', h);
-    autosized.setAttribute('x', -w/2);
-    autosized.setAttribute('y', -h/2);
-
     this.element.addEventListener('mousedown', this.beginDrag);
+    //let autosized = this.element.querySelector('.autosized');
+    //let content = this.element.querySelector('.content');
+
+    if (this.props.width === 0 && this.props.height === 0) {
+      let box = this.element.querySelector('.content').getBBox();
+      Dispatcher.emit(`node_changed`, {
+        id: this.props.id,
+        changed: {
+          width: box.width + 2*Node.PADDING,
+          height: box.height + 2*Node.PADDING
+        }
+      });
+    }
   }
   componentWillUnmount() {
     this.element.removeEventListener('mousedown', this.beginDrag);
@@ -40,48 +46,72 @@ export default class Node extends Component {
     window.addEventListener('mousemove', this.drag);
     this.initialX = event.clientX;
     this.initialY = event.clientY;
+    event.preventDefault();
+    return false;
   }
   endDrag(event) {
     this.element.classList.remove('dragging');
     window.removeEventListener('mousemove', this.drag);
     window.removeEventListener('mouseup', this.endDrag);
     this.element.addEventListener('mousedown', this.beginDrag);
-    Dispatcher.emit(`node_changed`, {
-      id: this.props.id,
-      changed: {
-        x: this.props.x + event.clientX - this.initialX,
-        y: this.props.y + event.clientY - this.initialY
-      }
-    });
+    this.moveTo(
+      this.props.x + event.clientX - this.initialX,
+      this.props.y + event.clientY - this.initialY
+    );
   }
   drag(event) {
-    let newX = this.props.x + event.clientX - this.initialX; 
-    let newY = this.props.y + event.clientY - this.initialY;
-    this.element.setAttribute('transform', this.getTransform(newX, newY));
-    Dispatcher.emit(`${this.props.id}:drag`, {
-      x: newX,
-      y: newY
+    this.moveTo(
+      this.props.x + event.clientX - this.initialX,
+      this.props.y + event.clientY - this.initialY
+    );
+    this.initialX = event.clientX;
+    this.initialY = event.clientY;
+  }
+  moveTo(x, y) {
+    Dispatcher.emit(`node_changed`, {
+      id: this.props.id,
+      changed: {x, y}
     });
-    event.preventDefault();
-    return false;
   }
   getTransform(x, y) {
     return `translate(${x} ${y})`;
   }
-  svgElement() {
-    switch (this.props.type) {
+  static SHAPE_FROM(node) {
+    switch (node.type) {
       default:
         return (
-          <rect x='0' y='0' rx='5' ry='5'
-          className={`default autosized node_${this.props.id}`}>
-          </rect>
+          [
+            'rect',
+            {
+              x: -node.width/2,
+              y: -node.height/2,
+              width: node.width,
+              height: node.height,
+              rx: 5,
+              ry: 5,
+              className: `default node_${node.id}`
+            }
+          ]
         );
+    }
+  }
+  static ABSOLUTE(node, shape) {
+    shape[1].x += node.x;
+    shape[1].y += node.y;
+    return shape;
+  }
+  static SVG_FROM(shape) {
+    switch (shape[0]) {
+      case ('rect'):
+        return (<rect {...shape[1]} />);
+      default:
+        return (<g {...shape[1]} />);
     }
   }
   render() {
     return(
       <g transform={this.getTransform(this.props.x, this.props.y)}>
-        {this.svgElement()}
+        {Node.SVG_FROM(Node.SHAPE_FROM(this.props))}
         <InnerHTML content={this.props.content} />
       </g>
     );
