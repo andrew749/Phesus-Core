@@ -9,66 +9,73 @@ let Helpers = require('./helpers');
 export default class Edge extends Component {
   constructor(props) {
     super(props);
-    this.updateFrom = this.updateFrom.bind(this);
-    this.updateTo = this.updateTo.bind(this);
+    this.update = this.update.bind(this);
+    this.arrowLength = 10;
   }
   componentDidMount() {
     this.element = ReactDOM.findDOMNode(this);
     this.line = this.element.querySelector('.line');
     this.arrow = this.element.querySelector('.arrow');
-    Dispatcher.on(`${this.props.from}:drag`, this.updateFrom);
-    Dispatcher.on(`${this.props.to}:drag`, this.updateTo);
-    this.updateArrow();
+    Dispatcher.on(`${this.props.from}:drag`, this.update);
+    Dispatcher.on(`${this.props.to}:drag`, this.update);
+    this.update();
   }
   componentWillUnmount() {
-    Dispatcher.off(`${this.props.from}:drag`, this.updateFrom);
-    Dispatcher.off(`${this.props.to}:drag`, this.updateTo);
+    Dispatcher.off(`${this.props.from}:drag`, this.update);
+    Dispatcher.off(`${this.props.to}:drag`, this.update);
   }
-  updateFrom(data) {
-    this.line.setAttribute('x1', data.x);
-    this.line.setAttribute('y1', data.y);
-    this.updateArrow();
-  }
-  updateTo(data) {
-    this.line.setAttribute('x2', data.x);
-    this.line.setAttribute('y2', data.y);
-    this.updateArrow();
-  }
-  updateArrow() {
-    let intersection = intersect(
-      Helpers.shapeFromElement(this.line),
-      Helpers.shapeFromElement(
-        document.querySelector(`.node_${this.props.to}`), true
-      )
+  update() {
+    let from = document.querySelector(`.node_${this.props.from}`);
+    let to = document.querySelector(`.node_${this.props.to}`);
+    let points = _.minBy(
+      Helpers.permutations(
+        Helpers.anchorsFromElement(from, true),
+        Helpers.anchorsFromElement(to, true)
+      ),
+      (points) => {
+        return Math.abs(
+          Math.pow(points[0].x1 - points[1].x1, 2) + 
+          Math.pow(points[0].y1 - points[1].y1, 2)
+        );
+      }
     );
-    console.log(intersection);
     let angle = Math.atan2(
-      parseFloat(this.line.getAttribute('y2'))
-        - parseFloat(this.line.getAttribute('y1')),
-      parseFloat(this.line.getAttribute('x2'))
-      - parseFloat(this.line.getAttribute('x1'))
+      points[1].y1 - points[1].y2,
+      points[1].x1 - points[1].x2
     ) * 180 / Math.PI;
+
+    let pointTo = _.mapValues(points[1], (v, k, o) => {
+      if (o.x1 == o.x2 && k.substr(0, 1) == 'y')
+        return v + Helpers.sign(o.y2-o.y1)*this.arrowLength;
+      if (o.y1 == o.y2 && k.substr(0, 1) == 'x')
+        return v + Helpers.sign(o.x2-o.x1)*this.arrowLength;
+      return v;
+    }); 
+    this.line.setAttribute(
+      'd',
+      `M ${points[0].x1} ${points[0].y1} ` +
+        `C ${points[0].x2} ${points[0].y2}, ` +
+        `${pointTo.x2} ${pointTo.y2}, ` +
+        `${pointTo.x1} ${pointTo.y1}`
+    );
     this.arrow.setAttribute(
       'transform',
-      `translate(${intersection.points[0].x} ${intersection.points[0].y}) ` +
+      `translate(${points[1].x1} ${points[1].y1}) ` +
         `rotate(${angle})`
     );
   }
   render() {
     return (
       <g className={`edge_${this.props.id}`}>
-        <line
+        <path
           className='line'
-          x1={this.props.x1}
-          y1={this.props.y1}
-          x2={this.props.x2}
-          y2={this.props.y2}
           stroke='#000'
           strokeWidth='1'
+          fill='transparent'
         />
         <polygon
           className='arrow'
-          points="0,0 -10,5 -10,-5"
+          points={`0,0 -${this.arrowLength},5 -${this.arrowLength},-5`}
           fill='#000'
         />
       </g>
