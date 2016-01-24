@@ -1,17 +1,27 @@
-import React, { Component } from 'react';
-let ReactDOM = require('react-dom');
+import React, { } from 'react';
 
-export default class Edge extends Component {
-  render() {
-    return (
+export default function Edge(props) {
+  let ARROW_LENGTH = 10;
+  return (
+    <g className={`edge_${props.id}`}>
       <line
-        x1={this.props.x1}
-        y1={this.props.y1}
-        x2={this.props.x2}
-        y2={this.props.y2}
+        className='line'
+        x1={props.x1}
+        y1={props.y1}
+        x2={props.x2}
+        y2={props.y2}
         stroke='#000'
         strokeWidth='1'
       />
-    );
-  }
+      <polygon
+        className='arrow'
+        transform={
+          `translate(${props.x3} ${props.y3}) ` +
+            `rotate(${props.angle})`
+        }
+        points={`0,0 -${ARROW_LENGTH},5 -${ARROW_LENGTH},-5`}
+        fill='#000'
+      />
+    </g>
+  );
 }

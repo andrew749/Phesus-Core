@@ -21,7 +21,7 @@ module.exports = {
     return this;
   },
   emit: function(event, data) {
-    getListeners(event).forEach((c) => c(data || {}));
+    getListeners(event).forEach((c) => c(data));
     return this;
   }
 };
