@@ -185,6 +185,7 @@ def createGraph(owners=owners,
     """
     return executeStatement(CREATE_GRAPH, (owners, members), True)[0][0]
 
+@CanWrite
 def createNode(x=x,
                y=y,
                type=type,
@@ -209,6 +210,7 @@ def createUser(username=name):
     """
     return executeStatement(CREATE_USER, (name,), True)[0][0]
 
+@CanWrite
 def createConnection(pid=projectId,
                      type=type,
                      fromNode=fromnode,
@@ -225,6 +227,7 @@ def createConnection(pid=projectId,
     """
     return executeStatement(CREATE_CONNECTION, (projectId, type, fromnode, tonode, metadata), True)
 
+@CanWrite
 def deleteNode(nodeId=nodeId):
     """
     Helper to delete a node.
@@ -232,6 +235,7 @@ def deleteNode(nodeId=nodeId):
     """
     executeStatement(DELETE_NODE, (nodeId, nodeId), False)
 
+@CanWrite
 def deleteConnection(connectionId=connectionId):
     """
     Helper to delete a connection.
@@ -239,6 +243,7 @@ def deleteConnection(connectionId=connectionId):
     """
     executeStatement(DELETE_CONNECTION, (connectionId), False)
 
+@CanWrite
 def updateConnection(uid=userId,
                      pid=projectId,
                      connectionId=connectionId,
@@ -248,6 +253,7 @@ def updateConnection(uid=userId,
                      metadata=metadata):
     executeStatement(UPDATE_CONNECTION, (type, tonode, fromnode, metadata, connectionId), False)
 
+@CanWrite
 def updateNode(uid=userId,
                pid=projectId,
                nodeId=nodeId,
