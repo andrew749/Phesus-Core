@@ -13,15 +13,19 @@ export default function Edge(props) {
         stroke='#000'
         strokeWidth='1'
       />
-      <polygon
-        className='arrow'
-        transform={
-          `translate(${props.x3} ${props.y3}) ` +
-            `rotate(${props.angle})`
-        }
-        points={`0,0 -${ARROW_LENGTH},5 -${ARROW_LENGTH},-5`}
-        fill='#000'
-      />
+      {
+        (props.x3 !== undefined && props.y3 !== undefined) ?
+          (<polygon
+            className='arrow'
+            transform={
+              `translate(${props.x3} ${props.y3}) ` +
+                `rotate(${props.angle})`
+            }
+            points={`0,0 -${ARROW_LENGTH},5 -${ARROW_LENGTH},-5`}
+            fill='#000'
+          />) :
+          undefined
+      }
     </g>
   );
 }

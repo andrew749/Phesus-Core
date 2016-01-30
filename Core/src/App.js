@@ -39,7 +39,8 @@ export default class App extends Component {
     super();
     this.state = {
       nodes: sampleContent.nodes,
-      edges: sampleContent.connections
+      edges: sampleContent.connections,
+      viewBox: {}
     };
     Dispatcher
       .on('node_changed', (data) => this.setState((state) => {
@@ -47,19 +48,32 @@ export default class App extends Component {
           state.nodes[data.id][key] = data.changed[key];
         }
         return state;
-      }, () => console.log(this.state.nodes)))
+      }))
       .on('edge_changed', (data) => this.setState((state) => {
         for (var key in data.changed) {
           state.edges[data.id][key] = data.changed[key];
         }
         return state;
-      }, () => console.log(this.state.edges)));
+      }))
+      .on('viewBox_changed', (data) => this.setState((state) => {
+        for (var key in data.changed) {
+          state.viewBox[key] = data.changed[key];
+        }
+        return state;
+      }));
   }
   render() {
     return (
       <div className='app'>
         <h1>Phesus</h1>
-        <Graph nodes={this.state.nodes} edges={this.state.edges} />
+        <Graph
+          nodes={this.state.nodes}
+          edges={this.state.edges}
+          x={this.state.viewBox.x}
+          y={this.state.viewBox.y}
+          width={this.state.viewBox.width}
+          height={this.state.viewBox.height}
+        />
       </div>
     );
   }

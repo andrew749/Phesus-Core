@@ -4,6 +4,11 @@ let shape = svgIntersections.shape;
 let _ = require('lodash');
 
 let helpers = {
+  stopEvent: (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    return false;
+  },
   sign: (n) => { return n == 0 ? 0 : n/Math.abs(n) },
   shapeAttrs: new Set(
     'x1,x2,y1,y2,x,y,rx,ry,width,height'
