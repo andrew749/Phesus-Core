@@ -50,7 +50,9 @@ CREATE_CONNECTION_TABLE = """
 CREATE_USERS_TABLE = """
     CREATE TABLE IF NOT EXISTS USERS (
     ID BIGSERIAL PRIMARY KEY NOT NULL,
-    NAME TEXT
+    NAME TEXT,
+    EMAIL TEXT,
+    GOOGLE_ID TEXT
     );
 """
 CREATE_PROJECTS_TABLE = """
@@ -106,7 +108,7 @@ SELECT EXISTS(
 );
 """
 
-#database connection code
+#Database connection code
 try:
     conn = psycopg2.connect("dbname='%s' user='%s' host='%s' password='%s'" % (DB_NAME,DB_USER, DB_HOST, DB_PASS))
     cur = conn.cursor()
@@ -147,12 +149,9 @@ def getGraph(uid=userId,
     :param projectId: The unique id of the project to get.
     :return A dictionary containing the nodes and connections of the project.
     """
-    if(verifyUserCanRead(uid=userId, pid=rojectId)):
-        nodes = getNodesByProject(userId, projectId)
-        connections = getConnectionsByProject(userId, projectId)
-        return json.dumps({"projectId":projectId,"nodes":nodes, "connections":connections})
-    else:
-        return json.dumps({"status":"ERROR"})
+    nodes = getNodesByProject(userId, projectId)
+    connections = getConnectionsByProject(userId, projectId)
+    return json.dumps({"projectId":projectId,"nodes":nodes, "connections":connections})
 
 @CanRead
 def getNodesByProject(uid=userId,
@@ -175,6 +174,7 @@ def getConnectionsByProject(uid=userId,
     """
     return executeStatement(GET_CONNECTIONS_BY_PROJECT, (projectId,), True)
 
+#Anyone can create a graph
 def createGraph(owners=owners,
                 members=members):
     """
@@ -264,14 +264,12 @@ def updateNode(uid=userId,
     #updates all fields
     executeStatement(UPDATE_NODE, (x, y, type, content, nodeId),False)
 
-@CanRead
 def checkIfNodeIsInProject(uid=userId,
                            pid=projectId,
                            nodeId=nodeId):
     """returns a boolean if a node is in a project"""
     return executeStatement(CHECK_IF_NODE_IS_IN_PROJECT, (nodeId, projectId), True)
 
-@CanRead
 def checkIfConnectionIsInProject(uid=userId,
                                  pid=projectId,
                                  connectionId=connectionId):
@@ -296,13 +294,6 @@ def checkIfUserIsInProject(uid=userId,
 
 def checkIfUserExists(uid=userId):
     return executeStatement(CHECK_IF_USER_EXISTS, (userId), True)
-
-def checkPermission(uid=userId,
-                    pid=projectId):
-    if(checkIfUserIsInProject(userId, projectId)):
-        return True
-    else:
-        return False
 
 """ Helper functions that decorate other functions,
     can check authentication and read and write
