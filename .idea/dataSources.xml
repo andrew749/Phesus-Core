@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DataSourceManagerImpl" format="xml" hash="2147420012">
+    <data-source source="LOCAL" name="PostgreSQL - phesus@localhost" uuid="a237b5c6-3f40-414f-bdfd-d54a7de4eeb9">
+      <driver-ref>postgresql</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
+      <jdbc-url>jdbc:postgresql://localhost:5432/phesus</jdbc-url>
+    </data-source>
+  </component>
+</project>
