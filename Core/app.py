@@ -1,7 +1,7 @@
 # import db_interactor
 import json
 from functools import wraps
-from flask import redirect, url_for, request, Response, jsonify, Flask, session
+from flask import redirect, url_for, request, Response, jsonify, Flask, session, render_template
 from exceptions import *
 
 import httplib2
@@ -20,30 +20,8 @@ def handle_invalid_usage(error):
     response.status_code = error.status_code
     return response
 
-
-def checkTokenValidity():
-    try:
-        idinfo = client.verify_id_token(token, CLIENT_ID)
-        # If multiple clients access the backend server:
-        if idinfo['aud'] not in [ANDROID_CLIENT_ID, IOS_CLIENT_ID, WEB_CLIENT_ID]:
-            raise crypt.AppIdentityError("Unrecognized client.")
-        if idinfo['iss'] not in ['accounts.google.com', 'https://accounts.google.com']:
-            raise crypt.AppIdentityError("Wrong issuer.")
-        if idinfo['hd'] != APPS_DOMAIN_NAME:
-            raise crypt.AppIdentityError("Wrong hosted domain.")
-    except crypt.AppIdentityError as error:
-        # Invalid token
-        return error
-    userid = idinfo['sub']
-
-
 def check_auth(username, password):
     return db_interactor.checkLogin(username, password)
-
-
-def authenticate():
-    return Response('Could not verify access level.')
-
 
 def requires_auth(f):
     @wraps(f)
@@ -52,12 +30,11 @@ def requires_auth(f):
         if not auth or not check_auth(auth.username, auth.password):
             return authenticate()
         return f(*args, **kwargs)
-
     return decorated
 
 
 # handle serving the gui
-@app.route("/")
+@app.route("/login")
 def index():
     if 'credentials' not in flask.session:
         return flask.redirect(flask.url_for('oauth2callback'))
@@ -66,9 +43,7 @@ def index():
         return flask.redirect(flask.url_for('oauth2callback'))
     else:
         http_auth = credentials.authorize(httplib2.Http())
-        drive_service = discovery.build('drive', 'v2', http_auth)
-        files = drive_service.files().list().execute()
-        return json.dumps(files)
+        render_template('editor.html')
 
 
 @app.route('/oauth2callback')
@@ -76,8 +51,7 @@ def oauth2callback():
       flow = client.flow_from_clientsecrets(
           'client_secrets.json',
           scope='https://www.googleapis.com/auth/drive.metadata.readonly',
-          redirect_uri=flask.url_for('oauth2callback', _external=True),
-          include_granted_scopes=True)
+          redirect_uri=flask.url_for('oauth2callback', _external=True))
       if 'code' not in flask.request.args:
         auth_uri = flow.step1_get_authorize_url()
         return flask.redirect(auth_uri)
@@ -86,17 +60,6 @@ def oauth2callback():
         credentials = flow.step2_exchange(auth_code)
         flask.session['credentials'] = credentials.to_json()
         return flask.redirect(flask.url_for('index'))
-
-@app.route(REDIRECT_URI)
-def authorized(resp):
-    access_token = resp['access_token']
-    session['access_token'] = access_token, ''
-    return redirect(url_for('index'))
-
-
-@app.route("/login")
-def login():
-    return "login"
 
 @app.route("/getGraph")
 @requires_auth
@@ -118,7 +81,6 @@ def createUser(userId=None):
 @requires_auth
 def createConnection():
     return "Created a connection"
-
 
 @app.route("/editor")
 def launchEditor():
