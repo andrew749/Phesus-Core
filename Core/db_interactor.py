@@ -140,18 +140,32 @@ def executeStatement(executableStatement, arguments, getResult):
         rows = cur.fetchall()
         return rows
 
-@CanRead
-def getGraph(uid=userId,
-             pid=projectId):
-    """
-    Helper returns the json object of the graph.
-    :param userId: The unique userId.
-    :param projectId: The unique id of the project to get.
-    :return A dictionary containing the nodes and connections of the project.
-    """
-    nodes = getNodesByProject(userId, projectId)
-    connections = getConnectionsByProject(userId, projectId)
-    return json.dumps({"projectId":projectId,"nodes":nodes, "connections":connections})
+def checkIfUserExists(uid=userId):
+    return executeStatement(CHECK_IF_USER_EXISTS, (userId), True)
+
+""" Helper functions that decorate other functions,
+    can check authentication and read and write
+    permissions here.
+"""
+def CanRead(func):
+    """Decorator to wrap functions and restrict access if a user can't read"""
+    def i(*args, **kwargs):
+        if(checkIfUserExists(kwargs.uid) and verifyUserCanRead(kwargs.uid, kwargs.pid)):
+            return func(*args, **kwargs)
+        else:
+            return json.dumps({"ERROR":"Cannot Read"})
+    return i
+
+def CanWrite(func):
+    """Same as read but with write permissions"""
+    def i(*args, **kwargs):
+        if(checkIfUserExists(kwargs.uid) and verifyUserCanEdit(kwargs.uid, kwargs.pid)):
+            return func(*args, **kwargs)
+        else:
+            return json.dumps({"ERROR":"Cannot Write"})
+    return i
+
+"""Remaining helper functions to access the db"""
 
 @CanRead
 def getNodesByProject(uid=userId,
@@ -174,6 +188,19 @@ def getConnectionsByProject(uid=userId,
     """
     return executeStatement(GET_CONNECTIONS_BY_PROJECT, (projectId,), True)
 
+@CanRead
+def getProject(uid=userId,
+             pid=projectId):
+    """
+    Helper returns the json object of the graph.
+    :param userId: The unique userId.
+    :param projectId: The unique id of the project to get.
+    :return A dictionary containing the nodes and connections of the project.
+    """
+    nodes = getNodesByProject(userId, projectId)
+    connections = getConnectionsByProject(userId, projectId)
+    return json.dumps({"projectId":projectId,"nodes":nodes, "connections":connections})
+
 #Anyone can create a graph
 def createGraph(owners=owners,
                 members=members):
@@ -184,6 +211,14 @@ def createGraph(owners=owners,
     :return The new project id.
     """
     return executeStatement(CREATE_GRAPH, (owners, members), True)[0][0]
+
+def createUser(username=name):
+    """
+    A helper to create a user.
+    :param name:The name of the user.
+    :return The id of the newly created user.
+    """
+    return executeStatement(CREATE_USER, (name,), True)[0][0]
 
 @CanWrite
 def createNode(x=x,
@@ -201,14 +236,6 @@ def createNode(x=x,
     :return The node id of the newly created node.
     """
     return executeStatement(CREATE_NODE, (x, y, type, contentJson, projectId), True)
-
-def createUser(username=name):
-    """
-    A helper to create a user.
-    :param name:The name of the user.
-    :return The id of the newly created user.
-    """
-    return executeStatement(CREATE_USER, (name,), True)[0][0]
 
 @CanWrite
 def createConnection(pid=projectId,
@@ -292,51 +319,19 @@ def checkIfUserIsInProject(uid=userId,
                            pid=projectId):
     return executeStatement(CHECK_IF_USER_IS_IN_PROJECT, (projectId, userId), True)
 
-def checkIfUserExists(uid=userId):
-    return executeStatement(CHECK_IF_USER_EXISTS, (userId), True)
-
-""" Helper functions that decorate other functions,
-    can check authentication and read and write
-    permissions here.
-"""
-def CanRead(func):
-    """Decorator to wrap functions and restrict access if a user can't read"""
-    def i(*args, **kwargs):
-        if(checkIfUserExists(kwargs.uid)):
-            return func(*args, **kwargs)
-        else:
-            return json.dumps({"ERROR":"Cannot Read"})
-    return i
-
-def CanWrite(func):
-    """Same as read but with write permissions"""
-    def i(*args, **kwargs):
-        if(checkIfUserExists(kwargs.uid)):
-            return func(*args, **kwargs)
-        else:
-            return json.dumps({"ERROR":"Cannot Read"})
-    return i
-
-def checkLogin(uid=userId,
-               password=password):
-    return checkIfUserExists(userId)
-
 def verifyUserCanRead(uid=userId,
                       pid=projectId):
     #return boolean if the user can ready
-    return True
+    return checkIfUserIsInProject(userId, projectId)
 
 def verifyUserCanEdit(uid=userId,
                       pid=projectId):
     #verify is a user has read permissions on a graph
-    return True
-
+    return checkIfUserIsInProject(userId, projectId)
 
 #START OF PROGRAM
 #will create the tables if they don't exist
 initTables()
-
-
 
 #SOME SAMPLE COMMANDS
 # id = createUser("John Cena")
