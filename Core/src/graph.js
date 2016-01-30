@@ -9,6 +9,12 @@ let intersect = svgIntersections.intersect;
 let shape = svgIntersections.shape;
 
 export default class Graph extends Component {
+  constructor(props) {
+    super(_.defaults(props, {
+      nodes: [],
+      edges: []
+    }));
+  }
   componentDidMount() {
     let canvas = ReactDOM.findDOMNode(this);
     let wrapper = canvas.querySelector('.wrapper');
@@ -18,6 +24,13 @@ export default class Graph extends Component {
     let x = -box.width/2 + canvas.offsetWidth/2 - box.x;
     let y = -box.height/2 + canvas.offsetHeight/2 - box.y;
     wrapper.setAttribute('transform', `translate(${x} ${y})`);
+  }
+  getViewBox() {
+    if (['x', 'y', 'width', 'height'].every((k) => this.props[k] !== undefined)) {
+      return `${x} ${y} ${width} ${height}`;
+    } else {
+      return undefined;
+    }
   }
   render() {
     let nodes = _.mapValues(this.props.nodes, (node, id) => {
@@ -62,7 +75,7 @@ export default class Graph extends Component {
       />);
     });
     return(
-      <svg className='canvas'>
+      <svg className='canvas' viewBox={this.getViewBox()}>
         <g className='wrapper'>
           <g className='nodes'>
             {_.values(nodes)}
