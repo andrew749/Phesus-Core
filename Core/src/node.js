@@ -53,15 +53,15 @@ export default class Node extends Component {
     window.removeEventListener('mouseup', this.endDrag);
     this.element.addEventListener('mousedown', this.beginDrag);
     this.moveTo(
-      this.props.x + event.clientX - this.initialX,
-      this.props.y + event.clientY - this.initialY
+      this.props.x + (event.clientX - this.initialX)*(this.props.scaleX || 1),
+      this.props.y + (event.clientY - this.initialY)*(this.props.scaleY || 1)
     );
     return Helpers.stopEvent(event);
   }
   drag(event) {
     this.moveTo(
-      this.props.x + event.clientX - this.initialX,
-      this.props.y + event.clientY - this.initialY
+      this.props.x + (event.clientX - this.initialX)*(this.props.scaleX || 1),
+      this.props.y + (event.clientY - this.initialY)*(this.props.scaleY || 1)
     );
     this.initialX = event.clientX;
     this.initialY = event.clientY;
