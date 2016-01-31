@@ -61,15 +61,15 @@ export default class Graph extends Component {
     window.removeEventListener('mouseup', this.endDrag);
     this.canvas.addEventListener('mousedown', this.beginDrag);
     this.moveTo(
-      this.props.x - event.clientX + this.initialX,
-      this.props.y - event.clientY + this.initialY
+      this.props.x - (event.clientX - this.initialX)*(this.props.width/this.canvas.offsetWidth),
+      this.props.y - (event.clientY - this.initialY)*(this.props.height/this.canvas.offsetHeight)
     );
     return Helpers.stopEvent(event);
   }
   drag(event) {
     this.moveTo(
-      this.props.x - event.clientX + this.initialX,
-      this.props.y - event.clientY + this.initialY
+      this.props.x - (event.clientX - this.initialX)*(this.props.width/this.canvas.offsetWidth),
+      this.props.y - (event.clientY - this.initialY)*(this.props.height/this.canvas.offsetHeight)
     );
     this.initialX = event.clientX;
     this.initialY = event.clientY;
@@ -113,6 +113,8 @@ export default class Graph extends Component {
         key={id}
         x={node.x}
         y={node.y}
+        scaleX={this.canvas ? this.props.width/this.canvas.offsetWidth : 0}
+        scaleY={this.canvas ? this.props.height/this.canvas.offsetHeight : 0}
         width={node.width || 0}
         height={node.height || 0}
         content={node.content}
