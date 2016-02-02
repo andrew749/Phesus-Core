@@ -68,25 +68,17 @@ def getGraph():
 
 
 # create a user account
-@app.route("/createuser/<userId>")
-def createUser(userId=None):
-    if (userId is not None):
-        db_interactor.createUser(userId)
-    else:
-        raise PhesusException("Need to provide a valid userId", 400)
-    return "Created a User"
+@app.route("/createuser")
+def createUser():
+    db_interactor.createUser()
+    return "Success"
 
 
-@app.route("/createConnection")
-@requires_auth
-def createConnection():
-    return "Created a connection"
 
 @app.route("/editor")
 def launchEditor():
     return "Launched an Editor"
 
-@app.route("/createNode")
 def createNode():
     x = request.args.get("x", '')
     y = request.args.get("y", '')
