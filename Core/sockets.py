@@ -1,6 +1,7 @@
 import asyncio
 import websockets
 import json
+import pdb
 """
 Simple python sockets server to handle requests.
 """
@@ -8,10 +9,15 @@ async def requestHandler(websocket, path):
     while True:
         print ("Waiting for request")
         jsonData = await websocket.recv()
-        print ("got request")
-        data = json.loads(jsonData)
-        print ("deserialized data")
-        result = route(data)
+        print (jsonData)
+        result = ""
+        try:
+            data = json.loads(jsonData)
+            print ("deserialized data")
+            result = route(data)
+        except json.decoder.JSONDecodeError:
+            result = "error"
+            print ("exception")
         await websocket.send(result)
         print ("sent response")
 
@@ -20,10 +26,10 @@ def route(body):
     Args:
         body : json in the form of a dictionary
     """
-    type = body.type
-    result = None
+    type = body['type']
+    result = ""
     if (type == "create_node"):
-        pass
+        result = "Success"
     elif (type == "create_user"):
         pass
     elif (type == "create_connection"):
@@ -41,7 +47,7 @@ def route(body):
     elif (type == "create_graph"):
         pass
     else:
-        raise PhesusException("Error : command not found")
+        raise Exception("Error : command not found")
     return result
 
 """Start running the server."""
