@@ -3,6 +3,7 @@ import InnerHTML from './innerhtml';
 let Dispatcher = require('./dispatcher');
 let _ = require('lodash');
 let ReactDOM = require('react-dom');
+let Helpers = require('./helpers');
 
 export default class Node extends Component {
   static defaultProps = {
@@ -20,8 +21,6 @@ export default class Node extends Component {
   componentDidMount() {
     this.element = ReactDOM.findDOMNode(this);
     this.element.addEventListener('mousedown', this.beginDrag);
-    //let autosized = this.element.querySelector('.autosized');
-    //let content = this.element.querySelector('.content');
 
     if (this.props.width === 0 && this.props.height === 0) {
       let box = this.element.querySelector('.content').getBBox();
@@ -46,8 +45,7 @@ export default class Node extends Component {
     window.addEventListener('mousemove', this.drag);
     this.initialX = event.clientX;
     this.initialY = event.clientY;
-    event.preventDefault();
-    return false;
+    return Helpers.stopEvent(event);
   }
   endDrag(event) {
     this.element.classList.remove('dragging');
@@ -55,17 +53,19 @@ export default class Node extends Component {
     window.removeEventListener('mouseup', this.endDrag);
     this.element.addEventListener('mousedown', this.beginDrag);
     this.moveTo(
-      this.props.x + event.clientX - this.initialX,
-      this.props.y + event.clientY - this.initialY
+      this.props.x + (event.clientX - this.initialX)*(this.props.scaleX || 1),
+      this.props.y + (event.clientY - this.initialY)*(this.props.scaleY || 1)
     );
+    return Helpers.stopEvent(event);
   }
   drag(event) {
     this.moveTo(
-      this.props.x + event.clientX - this.initialX,
-      this.props.y + event.clientY - this.initialY
+      this.props.x + (event.clientX - this.initialX)*(this.props.scaleX || 1),
+      this.props.y + (event.clientY - this.initialY)*(this.props.scaleY || 1)
     );
     this.initialX = event.clientX;
     this.initialY = event.clientY;
+    return Helpers.stopEvent(event);
   }
   moveTo(x, y) {
     Dispatcher.emit(`node_changed`, {
@@ -89,7 +89,7 @@ export default class Node extends Component {
               height: node.height,
               rx: 5,
               ry: 5,
-              className: `default node_${node.id}`
+              className: `bg default node_${node.id}`
             }
           ]
         );
@@ -110,7 +110,7 @@ export default class Node extends Component {
   }
   render() {
     return(
-      <g transform={this.getTransform(this.props.x, this.props.y)}>
+      <g className='node' transform={this.getTransform(this.props.x, this.props.y)}>
         {Node.SVG_FROM(Node.SHAPE_FROM(this.props))}
         <InnerHTML content={this.props.content} />
       </g>
