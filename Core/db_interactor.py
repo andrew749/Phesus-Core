@@ -79,7 +79,7 @@ VERIFY_NODE_IS_IN_PROJECT = """
     SELECT * FROM NODES WHERE %s=ID AND %s=PROJECT;
     );
 """
-CREATE_USER = """INSERT INTO USERS (NAME) VALUES (%s) RETURNING ID;"""
+CREATE_USER = """INSERT INTO USERS (NAME, EMAIL, GOOGLE_ID) VALUES (%s, %s, %s) RETURNING ID;"""
 CREATE_GRAPH = """INSERT INTO PROJECTS (OWNERS, MEMBERS) VALUES (%s, %s) RETURNING ID;"""
 CREATE_NODE = """INSERT INTO NODES (X,Y,TYPE,CONTENT,PROJECT) VALUES (%s, %s, %s, %s, %s) RETURNING ID;"""
 CREATE_CONNECTION = """INSERT INTO CONNECTIONS (PROJECT, TYPE, FROMNODE, TONODE, METADATA) VALUES (%s, %s, %s, %s, %s) RETURNING ID;"""
@@ -212,13 +212,13 @@ def createGraph(owners=owners,
     """
     return executeStatement(CREATE_GRAPH, (owners, members), True)[0][0]
 
-def createUser(username=name):
+def createUser(email=email, googleId = gid, name=name):
     """
     A helper to create a user.
     :param name:The name of the user.
     :return The id of the newly created user.
     """
-    return executeStatement(CREATE_USER, (name,), True)[0][0]
+    return executeStatement(CREATE_USER, (name, email, gid), True)[0][0]
 
 @CanWrite
 def createNode(x=x,
