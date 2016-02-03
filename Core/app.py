@@ -43,7 +43,7 @@ def index():
         return flask.redirect(flask.url_for('oauth2callback'))
     else:
         http_auth = credentials.authorize(httplib2.Http())
-        render_template('editor.html')
+        return render_template('index.html')
 
 
 @app.route('/oauth2callback')
