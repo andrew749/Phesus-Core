@@ -329,13 +329,6 @@ def verifyUserCanEdit(uid=userId,
     #verify is a user has read permissions on a graph
     return checkIfUserIsInProject(userId, projectId)
 
-#START OF PROGRAM
 #will create the tables if they don't exist
 initTables()
 
-#SOME SAMPLE COMMANDS
-# id = createUser("John Cena")
-# projectId = createGraph([id], [])
-# createNode(10, 10, NodeType.NORMAL, json.dumps({"test":"test"}), projectId)
-# createConnection(projectId,ConnectionType.BIDIRECTIONAL, id, id - 1, json.dumps({"test":"TEST"}))
-# print (getGraph(id, 9))

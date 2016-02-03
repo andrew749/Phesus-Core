@@ -20,15 +20,16 @@ def handle_invalid_usage(error):
     response.status_code = error.status_code
     return response
 
-def check_auth(username, password):
+def check_auth(username=username, password=password):
     return db_interactor.checkLogin(username, password)
 
 def requires_auth(f):
     @wraps(f)
     def decorated(*args, **kwargs):
+        credentials = client.OAuth2Credentials.from_json(flask.session['credentials'])
         auth = request.authorization
         if not auth or not check_auth(auth.username, auth.password):
-            return authenticate()
+            return flask.redirect(flask.url_for('login'))
         return f(*args, **kwargs)
     return decorated
 
@@ -48,46 +49,47 @@ def index():
 
 @app.route('/oauth2callback')
 def oauth2callback():
-      flow = client.flow_from_clientsecrets(
-          'client_secrets.json',
-          scope='https://www.googleapis.com/auth/drive.metadata.readonly',
-          redirect_uri=flask.url_for('oauth2callback', _external=True))
-      if 'code' not in flask.request.args:
+    flow = client.flow_from_clientsecrets(
+        'client_secrets.json',
+        scope='https://www.googleapis.com/auth/drive.metadata.readonly',
+        redirect_uri=flask.url_for('oauth2callback', _external=True))
+    if 'code' not in flask.request.args:
         auth_uri = flow.step1_get_authorize_url()
         return flask.redirect(auth_uri)
-      else:
+    else:
         auth_code = flask.request.args.get('code')
         credentials = flow.step2_exchange(auth_code)
         flask.session['credentials'] = credentials.to_json()
         return flask.redirect(flask.url_for('index'))
 
-@app.route("/getGraph")
+@app.route("/getGraph/<graphId>")
 @requires_auth
-def getGraph():
-    return "Success"
+def getGraph(graphId):
+    uid = request.args.get('userId')
+    pid = request.args.get('projectId')
 
+    if uid is None:
+        raise PhesusException("User Id cannot be null.")
+    if pid is None:
+        raise PhesusException("Need to specify a project to load.")
+
+    return db_interactor.getProject(uid=uid, pid=pid)
 
 # create a user account
 @app.route("/createuser")
 def createUser():
-    db_interactor.createUser()
-    return "Success"
+    email = request.args.get('email', '')
+    name = request.args.get('name', '')
 
-
+    if email is not None and name is not None:
+        return db_interactor.createUser(email, "id", name)
+    else:
+        raise PhesusException("Required fields for user cannot be blank.")
 
 @app.route("/editor")
+@requires_auth
 def launchEditor():
     return "Launched an Editor"
-
-def createNode():
-    x = request.args.get("x", '')
-    y = request.args.get("y", '')
-    type = request.args.get("type", '')
-    content = request.args.get("content", '')
-    pid = request.args.get("pid", '')
-    db_interactor.createNode(x, y, type, content, pid)
-    return "Created a Node"
-
 
 """Run the application"""
 if __name__ == "__main__":
