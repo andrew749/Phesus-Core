@@ -89,7 +89,7 @@ def createUser():
 @app.route("/editor")
 @requires_auth
 def launchEditor():
-    return "Launched an Editor"
+    return render_template('editor.html')
 
 """Run the application"""
 if __name__ == "__main__":
