@@ -1,18 +1,34 @@
 # import db_interactor
 import json
-from functools import wraps
+import flask
 from flask import redirect, url_for, request, Response, jsonify, Flask, session, render_template
-from exceptions import *
+from flask_oauthlib.client import OAuth
 
 import httplib2
-import flask
 import json
 from urllib.request import Request, urlopen, URLError
 from oauth2client import client, crypt
 from apiclient import discovery
 import uuid
 
+# Local classes
+from exceptions import *
+
 app = Flask(__name__)
+secret = "thebirdisnine"
+app.secret_key = secret
+
+oauth = OAuth(app)
+
+google = oauth.remote_app('google',
+                          base_url='https://www.google.com/accounts/',
+                          authorize_url='https://accounts.google.com/o/oauth2/auth',
+                          request_token_url=None,
+                          request_token_params={'scope': 'https://www.googleapis.com/auth/userinfo.email'},
+                          access_token_url='https://accounts.google.com/o/oauth2/token',
+                          access_token_method='POST',
+                          consumer_key="316576581621-m15up4ntog0qpgkdigvko683qbj667ua.apps.googleusercontent.com",
+                          consumer_secret="ExDFLNcyKWbrrf8iEJRLqBm3")
 
 @app.errorhandler(PhesusException)
 def handle_invalid_usage(error):
@@ -20,50 +36,42 @@ def handle_invalid_usage(error):
     response.status_code = error.status_code
     return response
 
-def check_auth(username=username, password=password):
-    return db_interactor.checkLogin(username, password)
-
-def requires_auth(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        credentials = client.OAuth2Credentials.from_json(flask.session['credentials'])
-        auth = request.authorization
-        if not auth or not check_auth(auth.username, auth.password):
-            return flask.redirect(flask.url_for('login'))
-        return f(*args, **kwargs)
-    return decorated
-
-
+@app.route('/')
+def home():
+    access_token = session.get('access_token')
+    if access_token is None:
+        return redirect(url_for('login'))
+    access_token = access_token[0]
+    headers = {'Authorization', 'OAuth '+ access_token}
+    req = Request('https://www.googleapis.com/oauth2/v1/userinfo', None, headers)
+    try:
+        res = urlopen(req)
+    except (URLError, e):
+        if e.code == 401:
+            session.pop('access_token', None)
+            return redirect(url_for('login'))
+        return res.read()
+    return res.read()
 # handle serving the gui
+#
 @app.route("/login")
-def index():
-    if 'credentials' not in flask.session:
-        return flask.redirect(flask.url_for('oauth2callback'))
-    credentials = client.OAuth2Credentials.from_json(flask.session['credentials'])
-    if credentials.access_token_expired:
-        return flask.redirect(flask.url_for('oauth2callback'))
-    else:
-        http_auth = credentials.authorize(httplib2.Http())
-        return render_template('index.html')
+def login():
+    callback = url_for('authorized', _external=True)
+    return google.authorize(callback=callback)
 
 
 @app.route('/oauth2callback')
-def oauth2callback():
-    flow = client.flow_from_clientsecrets(
-        'client_secrets.json',
-        scope='https://www.googleapis.com/auth/drive.metadata.readonly',
-        redirect_uri=flask.url_for('oauth2callback', _external=True))
-    if 'code' not in flask.request.args:
-        auth_uri = flow.step1_get_authorize_url()
-        return flask.redirect(auth_uri)
-    else:
-        auth_code = flask.request.args.get('code')
-        credentials = flow.step2_exchange(auth_code)
-        flask.session['credentials'] = credentials.to_json()
-        return flask.redirect(flask.url_for('index'))
+@google.authorized_handler
+def authorized(resp):
+    access_token=resp['access_token']
+    session['access_token'] = access_token
+    return redirect(url_for('index'))
+
+@google.tokengetter
+def get_access_token():
+    return session.get('access_token')
 
 @app.route("/getGraph/<graphId>")
-@requires_auth
 def getGraph(graphId):
     uid = request.args.get('userId')
     pid = request.args.get('projectId')
@@ -87,7 +95,6 @@ def createUser():
         raise PhesusException("Required fields for user cannot be blank.")
 
 @app.route("/editor")
-@requires_auth
 def launchEditor():
     return render_template('editor.html')
 
