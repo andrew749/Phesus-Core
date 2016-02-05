@@ -111,8 +111,17 @@ export default class Node extends Component {
   render() {
     return(
       <g className='node' transform={this.getTransform(this.props.x, this.props.y)}>
+        <g className='add_arrow' transform={this.getTransform(0, (this.props.height || 0)/2 + 20)}>
+          <rect x={-30} y={-25} width={60} height={40} />
+          <circle r={15} />
+          <line x1={0} y1={-10} x2={0} y2={1} stroke='#000' strokeWidth={1} />
+          <polygon
+            points='0,10 -5,0 5,0'
+            fill='#000'
+          />
+        </g>
         {Node.SVG_FROM(Node.SHAPE_FROM(this.props))}
-        <InnerHTML content={this.props.content} />
+        <InnerHTML content={this.props.content || {}} />
       </g>
     );
   }
