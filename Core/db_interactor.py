@@ -140,7 +140,7 @@ def executeStatement(executableStatement, arguments, getResult):
         rows = cur.fetchall()
         return rows
 
-def checkIfUserExists(uid=userId):
+def checkIfUserExists(userId):
     return executeStatement(CHECK_IF_USER_EXISTS, (userId), True)
 
 """ Helper functions that decorate other functions,
@@ -168,8 +168,8 @@ def CanWrite(func):
 """Remaining helper functions to access the db"""
 
 @CanRead
-def getNodesByProject(uid=userId,
-                      pid=projectId):
+def getNodesByProject(userId,
+                      projectId):
     """
     Return an array of nodes for the project.
     :param userId: The id of the user to access the project.
@@ -179,8 +179,8 @@ def getNodesByProject(uid=userId,
     return executeStatement(GET_NODES_BY_PROJECT,  (projectId,), True)
 
 @CanRead
-def getConnectionsByProject(uid=userId,
-                            pid=projectId):
+def getConnectionsByProject(userId,
+                            projectId):
     """
     Return all the edges of the graph.
     :param userId: Id
@@ -189,8 +189,8 @@ def getConnectionsByProject(uid=userId,
     return executeStatement(GET_CONNECTIONS_BY_PROJECT, (projectId,), True)
 
 @CanRead
-def getProject(uid=userId,
-             pid=projectId):
+def getProject(userId,
+               projectId):
     """
     Helper returns the json object of the graph.
     :param userId: The unique userId.
@@ -202,8 +202,8 @@ def getProject(uid=userId,
     return json.dumps({"projectId":projectId,"nodes":nodes, "connections":connections})
 
 #Anyone can create a graph
-def createGraph(owners=owners,
-                members=members):
+def createGraph(owners,
+                members):
     """
     Helper to create a graph.
     :param owners: Array of userId's to own the graph.
@@ -212,7 +212,9 @@ def createGraph(owners=owners,
     """
     return executeStatement(CREATE_GRAPH, (owners, members), True)[0][0]
 
-def createUser(email=email, googleId = gid, name=name):
+def createUser(email,
+               gid,
+               name):
     """
     A helper to create a user.
     :param name:The name of the user.
@@ -221,11 +223,11 @@ def createUser(email=email, googleId = gid, name=name):
     return executeStatement(CREATE_USER, (name, email, gid), True)[0][0]
 
 @CanWrite
-def createNode(x=x,
-               y=y,
-               type=type,
-               content=contentJson,
-               pid=projectId):
+def createNode(x,
+               y,
+               type,
+               contentJson,
+               projectId):
     """
     A helper to create a node.
     :param x: The x coordinate of the node.
@@ -238,11 +240,11 @@ def createNode(x=x,
     return executeStatement(CREATE_NODE, (x, y, type, contentJson, projectId), True)
 
 @CanWrite
-def createConnection(pid=projectId,
-                     type=type,
-                     fromNode=fromnode,
-                     toNode=tonode,
-                     metadata=etadata):
+def createConnection(projectId,
+                     type,
+                     fromnode,
+                     tonode,
+                     metadata):
     """
     A helper to create a connection.
     :param projectId: The id of the project associated with the node.
@@ -255,7 +257,7 @@ def createConnection(pid=projectId,
     return executeStatement(CREATE_CONNECTION, (projectId, type, fromnode, tonode, metadata), True)
 
 @CanWrite
-def deleteNode(nodeId=nodeId):
+def deleteNode(nodeId):
     """
     Helper to delete a node.
     :param nodeId: Id of the node to delete.
@@ -263,7 +265,7 @@ def deleteNode(nodeId=nodeId):
     executeStatement(DELETE_NODE, (nodeId, nodeId), False)
 
 @CanWrite
-def deleteConnection(connectionId=connectionId):
+def deleteConnection(connectionId):
     """
     Helper to delete a connection.
     :param connectionId: Id of the connection to delete.
@@ -271,61 +273,61 @@ def deleteConnection(connectionId=connectionId):
     executeStatement(DELETE_CONNECTION, (connectionId), False)
 
 @CanWrite
-def updateConnection(uid=userId,
-                     pid=projectId,
-                     connectionId=connectionId,
-                     type=type,
-                     fromNode=fromnode,
-                     toNode=tonode,
-                     metadata=metadata):
+def updateConnection(userId,
+                     projectId,
+                     sectionId=connectionId,
+                     type,
+                     fromnode,
+                     tonode,
+                     metadata):
     executeStatement(UPDATE_CONNECTION, (type, tonode, fromnode, metadata, connectionId), False)
 
 @CanWrite
-def updateNode(uid=userId,
-               pid=projectId,
-               nodeId=nodeId,
-               x=x,
-               y=y,
-               type=type,
-               content=content):
+def updateNode(userId,
+               projectId,
+               nodeId,
+               x,
+               y,
+               type,
+               content):
     #updates all fields
     executeStatement(UPDATE_NODE, (x, y, type, content, nodeId),False)
 
-def checkIfNodeIsInProject(uid=userId,
-                           pid=projectId,
-                           nodeId=nodeId):
+def checkIfNodeIsInProject(userId,
+                           projectId,
+                           nodeId):
     """returns a boolean if a node is in a project"""
     return executeStatement(CHECK_IF_NODE_IS_IN_PROJECT, (nodeId, projectId), True)
 
-def checkIfConnectionIsInProject(uid=userId,
-                                 pid=projectId,
-                                 connectionId=connectionId):
+def checkIfConnectionIsInProject(userId,
+                                 projectId,
+                                 connectionId):
     """returns a boolean if a connection is in a project"""
     return executeStatement(CHECK_IF_CONNECTION_IS_IN_PROJECT, (connectionId, projectId),True)
 
-def checkPermissionsNode(uid=userId,
-                         pid=projectId,
-                         nodeId=nodeId):
+def checkPermissionsNode(userId,
+                         projectId,
+                         nodeId):
     """checks if a node is in the project"""
     return checkIfNodeIsInProject(userId, projectId, nodeId)
 
-def checkPermissionsConnection(uid=userId,
-                               pid=projectId,
-                               connectionId=connectionId):
+def checkPermissionsConnection(userId,
+                               projectId,
+                               connectionId):
     #checks the permissions for a conncetion
     return checkIfConnectionIsInProject(uid=userId, pid=projectId, connectionId=connectionId)
 
-def checkIfUserIsInProject(uid=userId,
-                           pid=projectId):
+def checkIfUserIsInProject(userId,
+                           projectId):
     return executeStatement(CHECK_IF_USER_IS_IN_PROJECT, (projectId, userId), True)
 
-def verifyUserCanRead(uid=userId,
-                      pid=projectId):
+def verifyUserCanRead(userId,
+                      projectId):
     #return boolean if the user can ready
     return checkIfUserIsInProject(userId, projectId)
 
-def verifyUserCanEdit(uid=userId,
-                      pid=projectId):
+def verifyUserCanEdit(userId,
+                      projectId):
     #verify is a user has read permissions on a graph
     return checkIfUserIsInProject(userId, projectId)
 

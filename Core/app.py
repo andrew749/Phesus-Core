@@ -1,6 +1,7 @@
-# import db_interactor
+import db_interactor
 import json
 import flask
+from functools import wraps
 from flask import redirect, url_for, request, Response, jsonify, Flask, session, render_template
 from flask_oauthlib.client import OAuth
 
@@ -15,7 +16,7 @@ import uuid
 from exceptions import *
 
 app = Flask(__name__)
-secret = "thebirdisnine"
+secret = str(uuid.uuid4())
 app.secret_key = secret
 
 oauth = OAuth(app)
@@ -36,11 +37,25 @@ def handle_invalid_usage(error):
     response.status_code = error.status_code
     return response
 
+def isAuthenticated(func):
+    @wraps(func)
+    def a(*args, **kwargs):
+        access_token = session.get('access_token')
+        if access_token is None:
+            return redirect(url_for('login'))
+        else:
+            return func(*args, **kwargs)
+    return a
+
 @app.route('/')
+@isAuthenticated
 def index():
-    access_token = session.get('access_token')
-    if access_token is None:
-        return redirect(url_for('login'))
+    return "Success"
+
+@app.route('/test')
+@isAuthenticated
+def test():
+    access_token = session['access_token']
     headers = {'Authorization': 'OAuth '+ access_token}
     req = Request('https://www.googleapis.com/oauth2/v2/userinfo', None, headers)
     try:
@@ -51,19 +66,20 @@ def index():
             return redirect(url_for('login'))
         return res.read()
     return res.read()
+
 # handle serving the gui
-#
 @app.route("/login")
 def login():
     callback = url_for('authorized', _external=True)
     return google.authorize(callback=callback)
 
+#remove session
 @app.route("/logout")
 def logout():
     session.pop('access_token', None)
     return redirect(url_for('index'))
 
-
+#handle response from google
 @app.route('/oauth2callback')
 def authorized():
     resp = google.authorized_response()
@@ -75,6 +91,7 @@ def authorized():
 def get_access_token():
     return session.get('access_token')
 
+#return the initial graph
 @app.route("/getGraph/<graphId>")
 def getGraph(graphId):
     uid = request.args.get('userId')
@@ -83,7 +100,6 @@ def getGraph(graphId):
         raise PhesusException("User Id cannot be null.")
     if pid is None:
         raise PhesusException("Need to specify a project to load.")
-
     return db_interactor.getProject(uid=uid, pid=pid)
 
 # create a user account
@@ -91,13 +107,14 @@ def getGraph(graphId):
 def createUser():
     email = request.args.get('email', '')
     name = request.args.get('name', '')
-
     if email is not None and name is not None:
         return db_interactor.createUser(email, "id", name)
     else:
         raise PhesusException("Required fields for user cannot be blank.")
 
+#return the editing homepage
 @app.route("/editor")
+@isAuthenticated
 def launchEditor():
     return render_template('editor.html')
 
