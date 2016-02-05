@@ -21,10 +21,10 @@ app.secret_key = secret
 oauth = OAuth(app)
 
 google = oauth.remote_app('google',
-                          base_url='https://www.google.com/accounts/',
+                          base_url='https://www.googleapis.com/oauth2/v1/',
                           authorize_url='https://accounts.google.com/o/oauth2/auth',
                           request_token_url=None,
-                          request_token_params={'scope': 'https://www.googleapis.com/auth/userinfo.email'},
+                          request_token_params={'scope': 'email'},
                           access_token_url='https://accounts.google.com/o/oauth2/token',
                           access_token_method='POST',
                           consumer_key="316576581621-m15up4ntog0qpgkdigvko683qbj667ua.apps.googleusercontent.com",
@@ -37,13 +37,12 @@ def handle_invalid_usage(error):
     return response
 
 @app.route('/')
-def home():
+def index():
     access_token = session.get('access_token')
     if access_token is None:
         return redirect(url_for('login'))
-    access_token = access_token[0]
-    headers = {'Authorization', 'OAuth '+ access_token}
-    req = Request('https://www.googleapis.com/oauth2/v1/userinfo', None, headers)
+    headers = {'Authorization': 'OAuth '+ access_token}
+    req = Request('https://www.googleapis.com/oauth2/v2/userinfo', None, headers)
     try:
         res = urlopen(req)
     except (URLError, e):
@@ -59,10 +58,15 @@ def login():
     callback = url_for('authorized', _external=True)
     return google.authorize(callback=callback)
 
+@app.route("/logout")
+def logout():
+    session.pop('access_token', None)
+    return redirect(url_for('index'))
+
 
 @app.route('/oauth2callback')
-@google.authorized_handler
-def authorized(resp):
+def authorized():
+    resp = google.authorized_response()
     access_token=resp['access_token']
     session['access_token'] = access_token
     return redirect(url_for('index'))
@@ -75,7 +79,6 @@ def get_access_token():
 def getGraph(graphId):
     uid = request.args.get('userId')
     pid = request.args.get('projectId')
-
     if uid is None:
         raise PhesusException("User Id cannot be null.")
     if pid is None:
@@ -100,5 +103,4 @@ def launchEditor():
 
 """Run the application"""
 if __name__ == "__main__":
-    app.secret_key = str(uuid.uuid4())
     app.run(debug=True)
