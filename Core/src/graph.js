@@ -107,14 +107,16 @@ export default class Graph extends Component {
     }
   }
   render() {
+    let canvasX = this.canvas ? this.canvas.getBoundingClientRect().width : 1;
+    let canvasY = this.canvas ? this.canvas.getBoundingClientRect().height : 1;
     let nodes = _.mapValues(this.props.nodes, (node, id) => {
       return (<Node 
         id={id}
         key={id}
         x={node.x}
         y={node.y}
-        scaleX={this.canvas ? this.props.width/this.canvas.offsetWidth : 0}
-        scaleY={this.canvas ? this.props.height/this.canvas.offsetHeight : 0}
+        scaleX={this.canvas ? this.props.width/canvasX : 0}
+        scaleY={this.canvas ? this.props.height/canvasY : 0}
         width={node.width || 0}
         height={node.height || 0}
         content={node.content}
