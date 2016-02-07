@@ -12,6 +12,7 @@ from oauth2client import client, crypt
 from apiclient import discovery
 import uuid
 import pdb
+import time
 
 # Local classes
 from exceptions import *
@@ -22,14 +23,17 @@ app.secret_key = secret
 
 oauth = OAuth(app)
 
+tokens={}
+
 """
 Client to be used for all authentication.
+Can use similar implementation to add twitter, facebook, etc.
 """
 google = oauth.remote_app('google',
                           base_url='https://www.googleapis.com/oauth2/v1/',
                           authorize_url='https://accounts.google.com/o/oauth2/auth',
                           request_token_url=None,
-                          request_token_params={'scope': 'email'},
+                          request_token_params={'scope': 'email','access_type':'offline'},
                           access_token_url='https://accounts.google.com/o/oauth2/token',
                           access_token_method='POST',
                           consumer_key="316576581621-m15up4ntog0qpgkdigvko683qbj667ua.apps.googleusercontent.com",
@@ -51,13 +55,16 @@ def isAuthenticated(func):
         if access_token is None:
             return redirect(url_for('login'))
         else:
+            #FIXME:this is BAD, make sure to query google in the future, as it stands client can just modify cookie.
+            if session.get('expiry_time')<time.time():
+                return redirect(url_for('login'))
             return func(*args, **kwargs)
     return a
 
 @app.route('/')
 @isAuthenticated
 def index():
-    return "Success"
+    return ("Welcome {}".format(session['name']))
 
 def getUserData():
     access_token = session['access_token']
@@ -88,18 +95,37 @@ def logout():
 @app.route('/oauth2callback')
 def authorized():
     resp = google.authorized_response()
+
     access_token=resp['access_token']
-    session['access_token'] = access_token
+    refresh_token=resp['refresh_token']
+    expiry_time=resp['expires_in']
+
+    #set session access token
+    session['access_token']=access_token
+    session['expiry_time']=expiry_time + time.time()
+    #FIXME:also bad, make our own ids instead of using google.
+
     data = getUserData()
+
+    #TODO migrate to redis
+    tokens['id']={'access_token':access_token, 'refresh_token':refresh_token, 'expiry_time':expiry_time}
+
+    session['id']=data['id']
+    session['name']=data['name']
+
+    #TODO create a user
+    #FIXME: dont put all processing on database
     createUser(data['name'], data['email'], data['id'])
+
     return redirect(url_for('index'))
 
 @google.tokengetter
 def get_access_token():
     return session.get('access_token')
 
-#return the initial graph
+#return the project data
 @app.route("/getGraph/<graphId>")
+@isAuthenticated
 def getGraph(graphId):
     uid = request.args.get('userId')
     pid = request.args.get('projectId')
@@ -108,6 +134,17 @@ def getGraph(graphId):
     if pid is None:
         raise PhesusException("Need to specify a project to load.")
     return db_interactor.getProject(uid=uid, pid=pid)
+
+@app.route("/getProjects")
+@isAuthenticated
+def getProjects():
+    id = session['id']
+    return db_interactor.getProjects(uid=id)
+
+@app.route("/createGraph")
+@isAuthenticated
+def createGraph():
+    return db_interactor.createGraph([session['id']],[])
 
 def createUser(name, email, id):
     if email is not None and name is not None and id is not None:
