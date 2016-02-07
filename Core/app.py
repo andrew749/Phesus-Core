@@ -11,6 +11,7 @@ from urllib.request import Request, urlopen, URLError
 from oauth2client import client, crypt
 from apiclient import discovery
 import uuid
+import pdb
 
 # Local classes
 from exceptions import *
@@ -21,6 +22,9 @@ app.secret_key = secret
 
 oauth = OAuth(app)
 
+"""
+Client to be used for all authentication.
+"""
 google = oauth.remote_app('google',
                           base_url='https://www.googleapis.com/oauth2/v1/',
                           authorize_url='https://accounts.google.com/o/oauth2/auth',
@@ -37,6 +41,9 @@ def handle_invalid_usage(error):
     response.status_code = error.status_code
     return response
 
+"""
+Authentication wrapper
+"""
 def isAuthenticated(func):
     @wraps(func)
     def a(*args, **kwargs):
@@ -52,9 +59,7 @@ def isAuthenticated(func):
 def index():
     return "Success"
 
-@app.route('/test')
-@isAuthenticated
-def test():
+def getUserData():
     access_token = session['access_token']
     headers = {'Authorization': 'OAuth '+ access_token}
     req = Request('https://www.googleapis.com/oauth2/v2/userinfo', None, headers)
@@ -64,8 +69,8 @@ def test():
         if e.code == 401:
             session.pop('access_token', None)
             return redirect(url_for('login'))
-        return res.read()
-    return res.read()
+        return json.load(res.read())
+    return json.loads(res.read().decode('utf-8'))
 
 # handle serving the gui
 @app.route("/login")
@@ -85,6 +90,8 @@ def authorized():
     resp = google.authorized_response()
     access_token=resp['access_token']
     session['access_token'] = access_token
+    data = getUserData()
+    createUser(data['name'], data['email'], data['id'])
     return redirect(url_for('index'))
 
 @google.tokengetter
@@ -102,13 +109,9 @@ def getGraph(graphId):
         raise PhesusException("Need to specify a project to load.")
     return db_interactor.getProject(uid=uid, pid=pid)
 
-# create a user account
-@app.route("/createuser")
-def createUser():
-    email = request.args.get('email', '')
-    name = request.args.get('name', '')
-    if email is not None and name is not None:
-        return db_interactor.createUser(email, "id", name)
+def createUser(name, email, id):
+    if email is not None and name is not None and id is not None:
+        return db_interactor.createUser(name, email, id)
     else:
         raise PhesusException("Required fields for user cannot be blank.")
 
@@ -118,6 +121,8 @@ def createUser():
 def launchEditor():
     return render_template('editor.html')
 
-"""Run the application"""
+"""
+Run the application
+"""
 if __name__ == "__main__":
     app.run(debug=True)

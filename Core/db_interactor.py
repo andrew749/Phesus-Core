@@ -113,7 +113,7 @@ try:
     conn = psycopg2.connect("dbname='%s' user='%s' host='%s' password='%s'" % (DB_NAME,DB_USER, DB_HOST, DB_PASS))
     cur = conn.cursor()
 except:
-    print ("Unable to connect")
+    print ("Unable to connect to database.")
 
 
 def initTables():
@@ -212,9 +212,9 @@ def createGraph(owners,
     """
     return executeStatement(CREATE_GRAPH, (owners, members), True)[0][0]
 
-def createUser(email,
-               gid,
-               name):
+def createUser(name,
+               email,
+               gid):
     """
     A helper to create a user.
     :param name:The name of the user.
@@ -275,7 +275,7 @@ def deleteConnection(connectionId):
 @CanWrite
 def updateConnection(userId,
                      projectId,
-                     sectionId=connectionId,
+                     connectionId,
                      type,
                      fromnode,
                      tonode,
@@ -314,6 +314,7 @@ def checkPermissionsNode(userId,
 def checkPermissionsConnection(userId,
                                projectId,
                                connectionId):
+    """checks if a connection is in the project"""
     #checks the permissions for a conncetion
     return checkIfConnectionIsInProject(uid=userId, pid=projectId, connectionId=connectionId)
 
