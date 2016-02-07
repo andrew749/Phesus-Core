@@ -7,3 +7,4 @@ node_modules
 *.log
 client_secret*.json
 *.pyc
+__pycache__/*
