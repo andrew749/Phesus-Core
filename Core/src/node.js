@@ -17,10 +17,28 @@ export default class Node extends Component {
     this.beginDrag = this.beginDrag.bind(this);
     this.endDrag = this.endDrag.bind(this);
     this.drag = this.drag.bind(this);
+    this.beginAddArrow = this.beginAddArrow.bind(this);
+    this.endAddArrow = this.endAddArrow.bind(this);
+    this.selectAddArrow = this.selectAddArrow.bind(this);
+    this.deselectAddArrow = this.deselectAddArrow.bind(this);
+
+    Dispatcher.on('begin_add_arrow', (data) => {
+      if (data.id != this.props.id) {
+        this.element.addEventListener('mouseup', this.endAddArrow);
+        this.element.addEventListener('mouseover', this.selectAddArrow);
+        this.element.addEventListener('mouseout', this.deselectAddArrow);
+      }
+    }).on('end_add_arrow', () => {
+      this.element.removeEventListener('mouseup', this.endAddArrow);
+      this.element.removeEventListener('mouseover', this.selectAddArrow);
+      this.element.removeEventListener('mouseout', this.deselectAddArrow);
+    });
   }
   componentDidMount() {
     this.element = ReactDOM.findDOMNode(this);
     this.element.addEventListener('mousedown', this.beginDrag);
+    this.addArrow = this.element.querySelector('.add_arrow');
+    this.addArrow.addEventListener('mousedown', this.beginAddArrow);
 
     if (this.props.width === 0 && this.props.height === 0) {
       let box = this.element.querySelector('.content').getBBox();
@@ -37,6 +55,20 @@ export default class Node extends Component {
     this.element.removeEventListener('mousedown', this.beginDrag);
     window.removeEventListener('mouseup', this.endDrag);
     window.removeEventListener('mousemove', this.drag);
+  }
+  beginAddArrow(event) {
+    Dispatcher.emit('begin_add_arrow', {id: this.props.id});
+    return Helpers.stopEvent(event);
+  }
+  endAddArrow(event) {
+    Dispatcher.emit('end_add_arrow', {id: this.props.id});
+    return Helpers.stopEvent(event);
+  }
+  selectAddArrow() {
+    Dispatcher.emit('select_add_arrow', {id: this.props.id});
+  }
+  deselectAddArrow() {
+    Dispatcher.emit('deselect_add_arrow', {id: this.props.id});
   }
   beginDrag(event) {
     this.element.classList.add('dragging');
@@ -110,7 +142,10 @@ export default class Node extends Component {
   }
   render() {
     return(
-      <g className='node' transform={this.getTransform(this.props.x, this.props.y)}>
+      <g
+        className={`node ${this.props.addArrowSelected ? 'add_arrow_selected' : ''}`}
+        transform={this.getTransform(this.props.x, this.props.y)}
+      >
         <g className='add_arrow' transform={this.getTransform(0, (this.props.height || 0)/2 + 20)}>
           <rect x={-30} y={-25} width={60} height={40} />
           <circle r={15} />

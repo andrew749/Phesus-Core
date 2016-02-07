@@ -112,6 +112,12 @@ svg g.node:hover g.add_arrow {
   opacity: 1;
   display: block;
 }
+svg.adding_arrow g.node.add_arrow_selected .bg {
+  stroke: rgba(50,50,200,0.9) !important;
+}
+svg.adding_arrow g.node:hover g.add_arrow {
+  display: none;
+}
 svg g.node g.add_arrow circle {
   fill: #FFF;
   stroke: rgba(0,0,0,0.3);
@@ -119,4 +125,9 @@ svg g.node g.add_arrow circle {
 }
 svg g.node g.add_arrow:hover circle {
   stroke: rgba(0,0,0,0.7);
+}
+
+svg line.add_arrow_preview {
+  stroke: rgba(50,50,200,0.9);
+  stroke-width: 1;
 }

@@ -107,19 +107,22 @@ export default class Graph extends Component {
     }
   }
   render() {
-    let canvasX = this.canvas ? this.canvas.getBoundingClientRect().width : 1;
-    let canvasY = this.canvas ? this.canvas.getBoundingClientRect().height : 1;
+    let canvasWidth = this.canvas ? this.canvas.getBoundingClientRect().width : 0;
+    let canvasHeight = this.canvas ? this.canvas.getBoundingClientRect().height : 0;
+    let canvasY = this.canvas ? this.canvas.getBoundingClientRect().top : 0;
+    let addingArrow = this.props.addArrow && this.props.addArrowTo;
     let nodes = _.mapValues(this.props.nodes, (node, id) => {
       return (<Node 
         id={id}
         key={id}
         x={node.x}
         y={node.y}
-        scaleX={this.canvas ? this.props.width/canvasX : 0}
-        scaleY={this.canvas ? this.props.height/canvasY : 0}
+        scaleX={this.canvas ? this.props.width/canvasWidth : 0}
+        scaleY={this.canvas ? this.props.height/canvasHeight : 0}
         width={node.width || 0}
         height={node.height || 0}
         content={node.content}
+        addArrowSelected={node.addArrowSelected}
       />);
     });
     let edges = _.mapValues(this.props.edges, (edge, id) => {
@@ -153,11 +156,21 @@ export default class Graph extends Component {
       />);
     });
     return(
-      <svg className='canvas' viewBox={this.getViewBox()}>
+      <svg className={`canvas ${addingArrow ? 'adding_arrow' : ''}`} viewBox={this.getViewBox()}>
         <g className='wrapper'>
           <g className='nodes'>
             {_.values(nodes)}
           </g>
+          {addingArrow ? (
+            <line
+              x1={this.props.nodes[this.props.addArrow].x}
+              y1={this.props.nodes[this.props.addArrow].y}
+              x2={(this.props.addArrowTo.x/canvasWidth)*this.props.width + this.props.x}
+              y2={((this.props.addArrowTo.y-canvasY)/canvasHeight)*this.props.height + this.props.y}
+              className='add_arrow_preview'
+              strokeDasharray='5,5'
+            />
+          ) : undefined}
           <g className='edges'>
             {_.values(edges)}
           </g>
