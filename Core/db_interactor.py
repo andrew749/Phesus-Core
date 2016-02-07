@@ -9,6 +9,8 @@ DB_USER = 'dummy'
 DB_PASS = 'dummy'
 DB_HOST = 'localhost'
 
+DEBUG=True
+
 class NodeType:
     """An enumeration of the different types of nodes."""
     NORMAL = "normal"
@@ -29,18 +31,18 @@ class PermissionType:
 #STATEMENTS
 CREATE_NODES_TABLE = """
     CREATE TABLE IF NOT EXISTS NODES (
-    ID UUID PRIMARY KEY  NOT NULL,
+    ID SERIAL PRIMARY KEY  NOT NULL,
     X INT NOT NULL,
     Y INT NOT NULL,
     TYPE TEXT NOT NULL,
     CONTENT JSON  NOT NULL,
-    PROJECT INT NOT NULL REFERENCES PROJECTS(ID)
+    PROJECT SERIAL NOT NULL REFERENCES PROJECTS(ID)
     );
 """
 CREATE_CONNECTION_TABLE = """
     CREATE TABLE IF NOT EXISTS CONNECTIONS (
-    ID UUID PRIMARY KEY  NOT NULL,
-    PROJECT INT NOT NULL REFERENCES PROJECTS(ID),
+    ID SERIAL PRIMARY KEY  NOT NULL,
+    PROJECT SERIAL NOT NULL REFERENCES PROJECTS(ID),
     TYPE TEXT NOT NULL,
     FROMNODE INT NOT NULL,
     TONODE INT NOT NULL,
@@ -49,17 +51,16 @@ CREATE_CONNECTION_TABLE = """
 """
 CREATE_USERS_TABLE = """
     CREATE TABLE IF NOT EXISTS USERS (
-    ID BIGSERIAL PRIMARY KEY NOT NULL,
     NAME TEXT,
     EMAIL TEXT,
-    GOOGLE_ID TEXT
+    GOOGLE_ID TEXT PRIMARY KEY NOT NULL
     );
 """
 CREATE_PROJECTS_TABLE = """
     CREATE TABLE IF NOT EXISTS PROJECTS (
-    ID BIGSERIAL PRIMARY KEY NOT NULL,
-    OWNERS INT[] NOT NULL,
-    MEMBERS INT[]
+    ID SERIAL PRIMARY KEY NOT NULL,
+    OWNER TEXT NOT NULL,
+    MEMBERS TEXT[]
     );
 """
 GET_NODES_BY_PROJECT  = """
@@ -70,7 +71,7 @@ GET_CONNECTIONS_BY_PROJECT = """
 """
 VERIFY_USER_IS_PART_OF_PROJECT = """
     SELECT EXISTS (
-    SELECT * FROM PROJECTS WHERE %s in OWNERS || MEMBERS;
+    SELECT * FROM PROJECTS WHERE %s in OWNER || MEMBERS;
     );
 """
 #first param is nodeid second is the porjet id
@@ -79,8 +80,8 @@ VERIFY_NODE_IS_IN_PROJECT = """
     SELECT * FROM NODES WHERE %s=ID AND %s=PROJECT;
     );
 """
-CREATE_USER = """INSERT INTO USERS (NAME, EMAIL, GOOGLE_ID) VALUES (%s, %s, %s) RETURNING ID;"""
-CREATE_GRAPH = """INSERT INTO PROJECTS (OWNERS, MEMBERS) VALUES (%s, %s) RETURNING ID;"""
+CREATE_USER = """INSERT INTO USERS (NAME, EMAIL, GOOGLE_ID) VALUES (%s, %s, %s) ON CONFLICT (GOOGLE_ID) DO NOTHING;"""
+CREATE_GRAPH = """INSERT INTO PROJECTS (OWNER, MEMBERS) VALUES (%s, %s) RETURNING ID;"""
 CREATE_NODE = """INSERT INTO NODES (X,Y,TYPE,CONTENT,PROJECT) VALUES (%s, %s, %s, %s, %s) RETURNING ID;"""
 CREATE_CONNECTION = """INSERT INTO CONNECTIONS (PROJECT, TYPE, FROMNODE, TONODE, METADATA) VALUES (%s, %s, %s, %s, %s) RETURNING ID;"""
 UPDATE_NODE = """UPDATE NODES SET x = %s, y = %s, type = %s, content = %s,   where ID = %s;"""
@@ -99,13 +100,16 @@ SELECT EXISTS (
 """
 CHECK_IF_USER_IS_IN_PROJECT = """
 SELECT EXISTS (
-    SELECT * FROM PROJECTS WHERE %s=ID AND %s in OWNERS
+    SELECT * FROM PROJECTS WHERE %s = ID AND %s = OWNER
     );
 """
 CHECK_IF_USER_EXISTS = """
 SELECT EXISTS(
-    SELECT * FROM USERS WHERE %s=ID
+    SELECT * FROM USERS WHERE %s = ID
 );
+"""
+GET_PROJECTS = """
+    SELECT * FROM PROJECTS WHERE (%s=OWNER) OR (%s=ANY(MEMBERS));
 """
 
 #Database connection code
@@ -131,6 +135,7 @@ def executeStatement(executableStatement, arguments, getResult):
     :param getResult: Boolean representing whether or not to return something at the end of the query.
     :return returns the query if specified in getResult
     """
+    cur.mogrify(executableStatement, arguments)
     if (arguments is not None):
         cur.execute(executableStatement, arguments)
     else:
@@ -150,7 +155,7 @@ def checkIfUserExists(userId):
 def CanRead(func):
     """Decorator to wrap functions and restrict access if a user can't read"""
     def i(*args, **kwargs):
-        if(checkIfUserExists(kwargs.uid) and verifyUserCanRead(kwargs.uid, kwargs.pid)):
+        if(checkIfUserExists(kwargs['uid']) and verifyUserCanRead(kwargs['uid'], kwargs['pid'])):
             return func(*args, **kwargs)
         else:
             return json.dumps({"ERROR":"Cannot Read"})
@@ -201,6 +206,10 @@ def getProject(userId,
     connections = getConnectionsByProject(userId, projectId)
     return json.dumps({"projectId":projectId,"nodes":nodes, "connections":connections})
 
+def getProjects(uid=None):
+    data = executeStatement(GET_PROJECTS,(uid, uid), True)
+    return json.dumps(data)
+
 #Anyone can create a graph
 def createGraph(owners,
                 members):
@@ -220,7 +229,7 @@ def createUser(name,
     :param name:The name of the user.
     :return The id of the newly created user.
     """
-    return executeStatement(CREATE_USER, (name, email, gid), True)[0][0]
+    executeStatement(CREATE_USER, (name, email, gid), False)
 
 @CanWrite
 def createNode(x,
