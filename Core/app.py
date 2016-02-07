@@ -135,6 +135,9 @@ def getGraph(graphId):
         raise PhesusException("Need to specify a project to load.")
     return db_interactor.getProject(uid=uid, pid=pid)
 
+"""
+Get projects for a user id.
+"""
 @app.route("/getProjects")
 @isAuthenticated
 def getProjects():

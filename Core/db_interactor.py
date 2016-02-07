@@ -109,7 +109,7 @@ SELECT EXISTS(
 );
 """
 GET_PROJECTS = """
-    SELECT * FROM PROJECTS WHERE (%s=OWNER) OR (%s=ANY(MEMBERS));
+    SELECT * FROM PROJECTS WHERE %s=OWNER OR %s=ANY(MEMBERS);
 """
 
 #Database connection code
@@ -329,16 +329,23 @@ def checkPermissionsConnection(userId,
 
 def checkIfUserIsInProject(userId,
                            projectId):
+    """
+    Returns a boolean if the user is in a project.
+    """
     return executeStatement(CHECK_IF_USER_IS_IN_PROJECT, (projectId, userId), True)
 
 def verifyUserCanRead(userId,
                       projectId):
-    #return boolean if the user can ready
+    """
+    Return boolean if the user can ready.
+    """
     return checkIfUserIsInProject(userId, projectId)
 
 def verifyUserCanEdit(userId,
                       projectId):
-    #verify is a user has read permissions on a graph
+    """
+    Verify is a user has read permissions on a graph
+    """
     return checkIfUserIsInProject(userId, projectId)
 
 #will create the tables if they don't exist
