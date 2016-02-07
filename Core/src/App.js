@@ -4,7 +4,6 @@ import { Menu, Submenu, MenuItem } from './menu';
 let Dispatcher = require('./dispatcher');
 let Helpers = require('./helpers');
 let _ = require('lodash');
-let update = require('react-addons-update');
 
 let sampleContent = {
   nodes: {
@@ -47,6 +46,8 @@ export default class App extends Component {
         addNode: {open: false}
       }
     };
+    this.drawAddArrow = this.drawAddArrow.bind(this);
+    this.endAddArrow = this.endAddArrow.bind(this);
     Dispatcher
       .on('node_changed', (data) => this.setState((state) => {
         for (var key in data.changed) {
@@ -86,14 +87,63 @@ export default class App extends Component {
         while (id === '' || state.nodes[id]) id = Helpers.getUUID();
         state.nodes[id] = {
           x: state.viewBox.x + state.viewBox.width/2,
-          y: state.viewBox.y + state.viewBox.width/2,
+          y: state.viewBox.y + state.viewBox.height/2,
           localID: true
-        };
+        }
+      }))
+      .on('begin_add_arrow', (data) => {
+        this.setState((state) => {
+          state.addArrow = data.id;
+          return state;
+        });
+        window.addEventListener('mousemove', this.drawAddArrow);
+        window.addEventListener('mouseup', this.endAddArrow);
+      })
+      .on('end_add_arrow', (data) => {
+        this.setState((state) => {
+          var id = '';
+          while (id === '' || state.edges[id]) id = Helpers.getUUID();
+          state.edges[id] = {
+            from: state.addArrow,
+            to: data.id,
+            localID: true
+          };
+          _.each(state.nodes, (node) => delete node.addArrowSelected);
+          delete state.addArrow;
+          delete state.addArrowTo;
+          return state;
+        });
+        window.removeEventListener('mousemove', this.drawAddArrow);
+        window.removeEventListener('mouseup', this.endAddArrow);
+      })
+      .on('select_add_arrow', (data) => this.setState((state) => {
+        state.nodes[data.id].addArrowSelected = true;
+        return state;
+      }))
+      .on('deselect_add_arrow', (data) => this.setState((state) => {
+        delete state.nodes[data.id].addArrowSelected;
         return state;
       }));
   }
   componentDidMount() {
     document.body.addEventListener('click', () => Dispatcher.emit('menu_close_all'));
+  }
+  endAddArrow(event) {
+    this.setState((state) => {
+      _.each(state.nodes, (node) => delete node.addArrowSelected);
+      delete state.addArrow;
+      delete state.addArrowTo;
+      return state;
+    });
+  };
+  drawAddArrow(event) {
+    this.setState((state) => {
+      state.addArrowTo = {
+        x: event.clientX,
+        y: event.clientY
+      };
+      return state;
+    });
   }
   render() {
     return (
@@ -115,6 +165,8 @@ export default class App extends Component {
           y={this.state.viewBox.y}
           width={this.state.viewBox.width}
           height={this.state.viewBox.height}
+          addArrow={this.state.addArrow}
+          addArrowTo={this.state.addArrowTo}
         />
       </div>
     );
