@@ -144,10 +144,11 @@ def getProjects():
     id = session['id']
     return db_interactor.getProjects(uid=id)
 
-@app.route("/createGraph")
+@app.route("/createProject")
 @isAuthenticated
-def createGraph():
-    return db_interactor.createGraph([session['id']],[])
+def createProject():
+    data =  db_interactor.createProject(session['id'],[])
+    return str(data)
 
 def createUser(name, email, id):
     if email is not None and name is not None and id is not None:

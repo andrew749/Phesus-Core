@@ -3,6 +3,7 @@ import psycopg2
 import os
 import json
 import pdb
+import numpy as np
 
 DB_NAME =  'phesus'
 DB_USER = 'dummy'
@@ -109,7 +110,7 @@ SELECT EXISTS(
 );
 """
 GET_PROJECTS = """
-    SELECT * FROM PROJECTS WHERE %s=OWNER OR %s=ANY(MEMBERS);
+SELECT ID FROM PROJECTS WHERE %s=OWNER OR %s=ANY(MEMBERS);
 """
 
 #Database connection code
@@ -207,19 +208,19 @@ def getProject(userId,
     return json.dumps({"projectId":projectId,"nodes":nodes, "connections":connections})
 
 def getProjects(uid=None):
-    data = executeStatement(GET_PROJECTS,(uid, uid), True)
-    return json.dumps(data)
+    data = np.array(executeStatement(GET_PROJECTS,(uid, uid), True))
+    return json.dumps(data[:,0].tolist())
 
 #Anyone can create a graph
-def createGraph(owners,
-                members):
+def createProject(owner,
+                  members):
     """
     Helper to create a graph.
-    :param owners: Array of userId's to own the graph.
+    :param owner:userid to own the graph.
     :param members: Array of userId's who are associated with the graph.
     :return The new project id.
     """
-    return executeStatement(CREATE_GRAPH, (owners, members), True)[0][0]
+    return executeStatement(CREATE_GRAPH, (owner, members), True)[0][0]
 
 def createUser(name,
                email,
@@ -350,4 +351,3 @@ def verifyUserCanEdit(userId,
 
 #will create the tables if they don't exist
 initTables()
-
