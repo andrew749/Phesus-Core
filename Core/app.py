@@ -113,7 +113,6 @@ def authorized():
     session['id']=data['id']
     session['name']=data['name']
 
-    #TODO create a user
     #FIXME: dont put all processing on database
     createUser(data['name'], data['email'], data['id'])
 
@@ -123,7 +122,24 @@ def authorized():
 def get_access_token():
     return session.get('access_token')
 
-#return the project data
+@app.route("/createNode/<projectId>/<x>/<y>")
+@isAuthenticated
+def createNode(projectId, x, y):
+ #TODO actaully take json
+    if db_interactor.createNode(uid=session['id'], pid = projectId, x=x, y=y, type=db_interactor.NodeType.NORMAL, contentJson=json.dumps("")) is not None:
+        return "success"
+    raise PhesusException("couldn't add node")
+
+@app.route("/createConnection/<projectId>/<fromnode>/<tonode>")
+@isAuthenticated
+def createConnection(projectId, fromnode, tonode):
+    if db_interactor.createConnection(uid=session['id'],pid=projectId, type=db_interactor.ConnectionType.NORMAL, fromnode=fromnode, tonode=tonode, metadata=json.dumps({})) is not None:
+        return "success"
+    raise PhesusException("Couldn't create connection")
+
+"""
+Return the project data
+"""
 @app.route("/getProject/<projectId>")
 @isAuthenticated
 def getProject(projectId):
@@ -138,19 +154,27 @@ def getProjects():
     id = session['id']
     return db_interactor.getProjects(uid=id)
 
+"""
+Create a new project for the current logged in user.
+"""
 @app.route("/createProject")
 @isAuthenticated
 def createProject():
     data =  db_interactor.createProject(session['id'],[])
     return str(data)
 
+"""
+Helper method to create a new user after logging in.
+"""
 def createUser(name, email, id):
     if email is not None and name is not None and id is not None:
         return db_interactor.createUser(name, email, id)
     else:
         raise PhesusException("Required fields for user cannot be blank.")
 
-#return the editing homepage
+"""
+return the editing homepage
+"""
 @app.route("/editor")
 @isAuthenticated
 def launchEditor():
