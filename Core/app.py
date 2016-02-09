@@ -124,16 +124,10 @@ def get_access_token():
     return session.get('access_token')
 
 #return the project data
-@app.route("/getGraph/<graphId>")
+@app.route("/getProject/<projectId>")
 @isAuthenticated
-def getGraph(graphId):
-    uid = request.args.get('userId')
-    pid = request.args.get('projectId')
-    if uid is None:
-        raise PhesusException("User Id cannot be null.")
-    if pid is None:
-        raise PhesusException("Need to specify a project to load.")
-    return db_interactor.getProject(uid=uid, pid=pid)
+def getProject(projectId):
+    return db_interactor.getProject(uid=session['id'], pid=projectId)
 
 """
 Get projects for a user id.

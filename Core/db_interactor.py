@@ -106,7 +106,7 @@ SELECT EXISTS (
 """
 CHECK_IF_USER_EXISTS = """
 SELECT EXISTS(
-    SELECT * FROM USERS WHERE %s = ID
+    SELECT * FROM USERS WHERE %s = GOOGLE_ID
 );
 """
 GET_PROJECTS = """
@@ -146,8 +146,8 @@ def executeStatement(executableStatement, arguments, getResult):
         rows = cur.fetchall()
         return rows
 
-def checkIfUserExists(userId):
-    return executeStatement(CHECK_IF_USER_EXISTS, (userId), True)
+def checkIfUserExists(uid):
+    return executeStatement(CHECK_IF_USER_EXISTS, (uid,), True)
 
 """ Helper functions that decorate other functions,
     can check authentication and read and write
@@ -165,7 +165,7 @@ def CanRead(func):
 def CanWrite(func):
     """Same as read but with write permissions"""
     def i(*args, **kwargs):
-        if(checkIfUserExists(kwargs.uid) and verifyUserCanEdit(kwargs.uid, kwargs.pid)):
+        if(checkIfUserExists(kwargs['uid']) and verifyUserCanEdit(kwargs['uid'], kwargs['pid'])):
             return func(*args, **kwargs)
         else:
             return json.dumps({"ERROR":"Cannot Write"})
@@ -174,38 +174,38 @@ def CanWrite(func):
 """Remaining helper functions to access the db"""
 
 @CanRead
-def getNodesByProject(userId,
-                      projectId):
+def getNodesByProject(uid,
+                      pid):
     """
     Return an array of nodes for the project.
-    :param userId: The id of the user to access the project.
-    :param projectId: The id of the project to get the nodes for.
+    :param uid: The id of the user to access the project.
+    :param pid: The id of the project to get the nodes for.
     :return Rows each representing a node of the project.
     """
-    return executeStatement(GET_NODES_BY_PROJECT,  (projectId,), True)
+    return executeStatement(GET_NODES_BY_PROJECT,  (pid,), True)
 
 @CanRead
-def getConnectionsByProject(userId,
-                            projectId):
+def getConnectionsByProject(uid,
+                            pid):
     """
     Return all the edges of the graph.
-    :param userId: Id
-    :param projectId: Project Id
+    :param uid: Id
+    :param pid: Project Id
     """
-    return executeStatement(GET_CONNECTIONS_BY_PROJECT, (projectId,), True)
+    return executeStatement(GET_CONNECTIONS_BY_PROJECT, (pid,), True)
 
 @CanRead
-def getProject(userId,
-               projectId):
+def getProject(uid,
+               pid):
     """
     Helper returns the json object of the graph.
-    :param userId: The unique userId.
-    :param projectId: The unique id of the project to get.
+    :param uid: The unique userId.
+    :param pid: The unique id of the project to get.
     :return A dictionary containing the nodes and connections of the project.
     """
-    nodes = getNodesByProject(userId, projectId)
-    connections = getConnectionsByProject(userId, projectId)
-    return json.dumps({"projectId":projectId,"nodes":nodes, "connections":connections})
+    nodes = getNodesByProject(uid=uid, pid=pid)
+    connections = getConnectionsByProject(uid=uid, pid=pid)
+    return json.dumps({"pid":pid,"nodes":nodes, "connections":connections})
 
 def getProjects(uid=None):
     data = np.array(executeStatement(GET_PROJECTS,(uid, uid), True))
@@ -233,41 +233,43 @@ def createUser(name,
     executeStatement(CREATE_USER, (name, email, gid), False)
 
 @CanWrite
-def createNode(x,
+def createNode(uid,
+               pid,
+               x,
                y,
                type,
-               contentJson,
-               projectId):
+               contentJson):
     """
     A helper to create a node.
     :param x: The x coordinate of the node.
     :param y: The y coordinate of the node.
     :param type: The type of the node to create. See NodeTypes.
     :param contentJson: The content for the node.
-    :param projectId: The project that the node is associated with.
+    :param pid: The project that the node is associated with.
     :return The node id of the newly created node.
     """
-    return executeStatement(CREATE_NODE, (x, y, type, contentJson, projectId), True)
+    return executeStatement(CREATE_NODE, (x, y, type, contentJson, pid), True)
 
 @CanWrite
-def createConnection(projectId,
+def createConnection(uid,
+                     pid,
                      type,
                      fromnode,
                      tonode,
                      metadata):
     """
     A helper to create a connection.
-    :param projectId: The id of the project associated with the node.
+    :param pid: The id of the project associated with the node.
     :param type: The type of connection.
     :param fromnode: The id of the origin node.
     :param tonode: The id of the destination node.
     :param metadata: Json formatted metadata associated with the connection.
     :return The id of the created connection.
     """
-    return executeStatement(CREATE_CONNECTION, (projectId, type, fromnode, tonode, metadata), True)
+    return executeStatement(CREATE_CONNECTION, (pid, type, fromnode, tonode, metadata), True)
 
 @CanWrite
-def deleteNode(nodeId):
+def deleteNode(uid, pid, nodeId):
     """
     Helper to delete a node.
     :param nodeId: Id of the node to delete.
@@ -275,7 +277,7 @@ def deleteNode(nodeId):
     executeStatement(DELETE_NODE, (nodeId, nodeId), False)
 
 @CanWrite
-def deleteConnection(connectionId):
+def deleteConnection(uid, pid, connectionId):
     """
     Helper to delete a connection.
     :param connectionId: Id of the connection to delete.
@@ -283,8 +285,8 @@ def deleteConnection(connectionId):
     executeStatement(DELETE_CONNECTION, (connectionId), False)
 
 @CanWrite
-def updateConnection(userId,
-                     projectId,
+def updateConnection(uid,
+                     pid,
                      connectionId,
                      type,
                      fromnode,
@@ -293,8 +295,8 @@ def updateConnection(userId,
     executeStatement(UPDATE_CONNECTION, (type, tonode, fromnode, metadata, connectionId), False)
 
 @CanWrite
-def updateNode(userId,
-               projectId,
+def updateNode(uid,
+               pid,
                nodeId,
                x,
                y,
@@ -303,51 +305,51 @@ def updateNode(userId,
     #updates all fields
     executeStatement(UPDATE_NODE, (x, y, type, content, nodeId),False)
 
-def checkIfNodeIsInProject(userId,
-                           projectId,
+def checkIfNodeIsInProject(uid,
+                           pid,
                            nodeId):
     """returns a boolean if a node is in a project"""
-    return executeStatement(CHECK_IF_NODE_IS_IN_PROJECT, (nodeId, projectId), True)
+    return executeStatement(CHECK_IF_NODE_IS_IN_PROJECT, (nodeId, pid), True)
 
-def checkIfConnectionIsInProject(userId,
-                                 projectId,
+def checkIfConnectionIsInProject(uid,
+                                 pid,
                                  connectionId):
     """returns a boolean if a connection is in a project"""
-    return executeStatement(CHECK_IF_CONNECTION_IS_IN_PROJECT, (connectionId, projectId),True)
+    return executeStatement(CHECK_IF_CONNECTION_IS_IN_PROJECT, (connectionId, pid),True)
 
-def checkPermissionsNode(userId,
-                         projectId,
+def checkPermissionsNode(uid,
+                         pid,
                          nodeId):
     """checks if a node is in the project"""
-    return checkIfNodeIsInProject(userId, projectId, nodeId)
+    return checkIfNodeIsInProject(uid, pid, nodeId)
 
-def checkPermissionsConnection(userId,
-                               projectId,
+def checkPermissionsConnection(uid,
+                               pid,
                                connectionId):
     """checks if a connection is in the project"""
     #checks the permissions for a conncetion
-    return checkIfConnectionIsInProject(uid=userId, pid=projectId, connectionId=connectionId)
+    return checkIfConnectionIsInProject(uid=uid, pid=pid, connectionId=connectionId)
 
-def checkIfUserIsInProject(userId,
-                           projectId):
+def checkIfUserIsInProject(uid,
+                           pid):
     """
     Returns a boolean if the user is in a project.
     """
-    return executeStatement(CHECK_IF_USER_IS_IN_PROJECT, (projectId, userId), True)
+    return executeStatement(CHECK_IF_USER_IS_IN_PROJECT, (pid, uid), True)
 
-def verifyUserCanRead(userId,
-                      projectId):
+def verifyUserCanRead(uid,
+                      pid):
     """
     Return boolean if the user can ready.
     """
-    return checkIfUserIsInProject(userId, projectId)
+    return checkIfUserIsInProject(uid, pid)
 
-def verifyUserCanEdit(userId,
-                      projectId):
+def verifyUserCanEdit(uid,
+                      pid):
     """
     Verify is a user has read permissions on a graph
     """
-    return checkIfUserIsInProject(userId, projectId)
+    return checkIfUserIsInProject(uid, pid)
 
 #will create the tables if they don't exist
 initTables()
