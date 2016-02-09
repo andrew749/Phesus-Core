@@ -128,7 +128,7 @@ def createNode(projectId, x, y):
  #TODO actaully take json
     if db_interactor.createNode(uid=session['id'], pid = projectId, x=x, y=y, type=db_interactor.NodeType.NORMAL, contentJson=json.dumps("")) is not None:
         return "success"
-    raise PhesusException("couldn't add node")
+    raise PhesusException("Couldn't create node")
 
 @app.route("/createConnection/<projectId>/<fromnode>/<tonode>")
 @isAuthenticated

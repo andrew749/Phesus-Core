@@ -65,10 +65,11 @@ CREATE_PROJECTS_TABLE = """
     );
 """
 GET_NODES_BY_PROJECT  = """
-    SELECT * FROM NODES WHERE PROJECT=%s;
-"""
+    SELECT ID, X, Y, TYPE, CONTENT  FROM NODES WHERE PROJECT=%s;
+ """
+
 GET_CONNECTIONS_BY_PROJECT = """
-    SELECT * FROM CONNECTIONS WHERE PROJECT=%s;
+    SELECT ID, TYPE, FROMNODE, TONODE, METADATA FROM CONNECTIONS WHERE PROJECT=%s;
 """
 VERIFY_USER_IS_PART_OF_PROJECT = """
     SELECT EXISTS (
@@ -182,8 +183,12 @@ def getNodesByProject(uid,
     :param pid: The id of the project to get the nodes for.
     :return Rows each representing a node of the project.
     """
-    return executeStatement(GET_NODES_BY_PROJECT,  (pid,), True)
-
+    data = executeStatement(GET_NODES_BY_PROJECT,  (pid,), True)
+    columns = ('id','x', 'y','type', 'content')
+    results = []
+    for row in data:
+        results.append(dict(zip(columns, row)))
+    return json.dumps(results)
 @CanRead
 def getConnectionsByProject(uid,
                             pid):
@@ -192,8 +197,12 @@ def getConnectionsByProject(uid,
     :param uid: Id
     :param pid: Project Id
     """
-    return executeStatement(GET_CONNECTIONS_BY_PROJECT, (pid,), True)
-
+    data = executeStatement(GET_CONNECTIONS_BY_PROJECT, (pid,), True)
+    columns = ('id', 'type', 'fromnode', 'tonode', 'metadata')
+    results = []
+    for row in data:
+        results.append(dict(zip(columns, row)))
+    return json.dumps(results)
 @CanRead
 def getProject(uid,
                pid):
