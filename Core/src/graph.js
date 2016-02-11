@@ -112,7 +112,7 @@ export default class Graph extends Component {
     let canvasY = this.canvas ? this.canvas.getBoundingClientRect().top : 0;
     let addingArrow = this.props.addArrow && this.props.addArrowTo;
     let nodes = _.mapValues(this.props.nodes, (node, id) => {
-      return (<Node 
+      return (<Node
         id={id}
         key={id}
         x={node.x}
@@ -155,6 +155,7 @@ export default class Graph extends Component {
         ) * 180 / Math.PI}
       />);
     });
+    console.log(this.props.edges)
     return(
       <svg className={`canvas ${addingArrow ? 'adding_arrow' : ''}`} viewBox={this.getViewBox()}>
         <g className='wrapper'>

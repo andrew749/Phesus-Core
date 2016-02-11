@@ -40,8 +40,8 @@ export default class App extends Component {
   constructor() {
     super();
     this.state = {
-      nodes: sampleContent.nodes,
-      edges: sampleContent.connections,
+      nodes: {},
+      edges: {},
       viewBox: {},
       menu: {
         addNode: {open: false}
@@ -49,6 +49,15 @@ export default class App extends Component {
     };
     this.drawAddArrow = this.drawAddArrow.bind(this);
     this.endAddArrow = this.endAddArrow.bind(this);
+    var req = new XMLHttpRequest();
+    req.addEventListener("load", ()=>{
+      let response = JSON.parse(req.response);
+      console.log(response);
+      this.setState({nodes: response.nodes || {}, edges: response.connections || {}}, () => console.log(this.state.nodes));
+    });
+    //hardcoded for project 4
+    req.open("GET", "/getProject/4");
+    req.send();
     Dispatcher
       .on('node_changed', (data) => this.setState((state) => {
         for (var key in data.changed) {
@@ -128,6 +137,7 @@ export default class App extends Component {
   }
   componentDidMount() {
     document.body.addEventListener('click', () => Dispatcher.emit('menu_close_all'));
+
   }
   endAddArrow(event) {
     this.setState((state) => {

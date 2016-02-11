@@ -189,7 +189,7 @@ def getNodesByProject(uid,
     dict_from_row = lambda x: {'x':x[1], 'y':x[2], 'type':x[3], 'content':x[4]}
     for row in data:
         results[row[0]] = dict_from_row(row)
-    return json.dumps(results)
+    return results
 
 @CanRead
 def getConnectionsByProject(uid,
@@ -202,10 +202,10 @@ def getConnectionsByProject(uid,
     data = executeStatement(GET_CONNECTIONS_BY_PROJECT, (pid,), True)
     # columns = ('id', 'type', 'fromnode', 'tonode', 'metadata')
     results = {}
-    dict_from_row = lambda x: {'type':x[1], 'fromnode':x[2], 'tonode':x[3], 'metadata': x[4]}
+    dict_from_row = lambda x: {'type':x[1], 'from':str(x[2]), 'to':str(x[3]), 'metadata': x[4]}
     for row in data:
         results[row[0]] = dict_from_row(row)
-    return json.dumps(results)
+    return results
 
 @CanRead
 def getProject(uid,

@@ -92,6 +92,10 @@ def logout():
     session.pop('access_token', None)
     return redirect(url_for('index'))
 
+@app.route('/<path:path>')
+def static_file(path):
+    return app.send_static_file(path)
+
 #handle response from google
 @app.route('/oauth2callback')
 def authorized():
@@ -172,14 +176,6 @@ def createUser(name, email, id):
         return db_interactor.createUser(name, email, id)
     else:
         raise PhesusException("Required fields for user cannot be blank.")
-
-"""
-return the editing homepage
-"""
-@app.route("/editor")
-@isAuthenticated
-def launchEditor():
-    return render_template('editor.html')
 
 """
 Run the application
