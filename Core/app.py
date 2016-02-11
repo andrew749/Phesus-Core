@@ -93,6 +93,7 @@ def logout():
     return redirect(url_for('index'))
 
 @app.route('/<path:path>')
+@isAuthenticated
 def static_file(path):
     return app.send_static_file(path)
 
@@ -131,15 +132,17 @@ def get_access_token():
 @isAuthenticated
 def createNode(projectId, x, y):
  #TODO actaully take json
-    if db_interactor.createNode(uid=session['id'], pid = projectId, x=x, y=y, type=db_interactor.NodeType.NORMAL, contentJson=json.dumps("")) is not None:
-        return "success"
+    data = db_interactor.createNode(uid=session['id'], pid = projectId, x=x, y=y, type=db_interactor.NodeType.NORMAL, contentJson=json.dumps(""))
+    if data is not None:
+        return data
     raise PhesusException("Couldn't create node")
 
 @app.route("/createConnection/<projectId>/<fromnode>/<tonode>")
 @isAuthenticated
 def createConnection(projectId, fromnode, tonode):
-    if db_interactor.createConnection(uid=session['id'],pid=projectId, type=db_interactor.ConnectionType.NORMAL, fromnode=fromnode, tonode=tonode, metadata=json.dumps({})) is not None:
-        return "success"
+    data = db_interactor.createConnection(uid=session['id'],pid=projectId, type=db_interactor.ConnectionType.NORMAL, fromnode=fromnode, tonode=tonode, metadata=json.dumps({}))
+    if data is not None:
+        return json.dumps(data)
     raise PhesusException("Couldn't create connection")
 
 """

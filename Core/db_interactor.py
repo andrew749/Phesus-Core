@@ -279,7 +279,7 @@ def createConnection(uid,
     :param metadata: Json formatted metadata associated with the connection.
     :return The id of the created connection.
     """
-    return executeStatement(CREATE_CONNECTION, (pid, type, fromnode, tonode, metadata), True)
+    return executeStatement(CREATE_CONNECTION, (pid, type, fromnode, tonode, metadata), True)[0][0]
 
 @CanWrite
 def deleteNode(uid, pid, nodeId):

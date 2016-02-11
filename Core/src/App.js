@@ -95,11 +95,23 @@ export default class App extends Component {
       .on('node_added', (data) => this.setState((state) => {
         var id = '';
         while (id === '' || state.nodes[id]) id = Helpers.getUUID();
+        let x_pos = state.viewBox.x + state.viewBox.width/2;
+        let y_pos = state.viewBox.y + state.viewBox.height/2;
         state.nodes[id] = {
-          x: state.viewBox.x + state.viewBox.width/2,
-          y: state.viewBox.y + state.viewBox.height/2,
+          x: x_pos,
+          y: y_pos,
           localID: true
         }
+        var req = new XMLHttpRequest();
+          req.addEventListener("load", ()=>{
+            let response = JSON.parse(req.response);
+            console.log(response);
+            this.setState({nodes: response.nodes || {}, edges: response.connections || {}}, () => console.log(this.state.nodes));
+          });
+
+          req.open("GET", `/createNode/4/${x_pos}/${y_pos}`);
+          req.send();
+
       }))
       .on('begin_add_arrow', (data) => {
         this.setState((state) => {
@@ -118,6 +130,16 @@ export default class App extends Component {
             to: data.id,
             localID: true
           };
+          var req = new XMLHttpRequest();
+          req.addEventListener("load", ()=>{
+            let response = JSON.parse(req.response);
+            console.log(response);
+            this.setState({nodes: response.nodes || {}, edges: response.connections || {}}, () => console.log(this.state.nodes));
+          });
+
+          req.open("GET", `/createConnection/4/${state.addArrow}/${data.id}`);
+          req.send();
+
           _.each(state.nodes, (node) => delete node.addArrowSelected);
           delete state.addArrow;
           delete state.addArrowTo;
