@@ -184,11 +184,13 @@ def getNodesByProject(uid,
     :return Rows each representing a node of the project.
     """
     data = executeStatement(GET_NODES_BY_PROJECT,  (pid,), True)
-    columns = ('id','x', 'y','type', 'content')
-    results = []
+    # columns = ('id','x', 'y','type', 'content')
+    results = {}
+    dict_from_row = lambda x: {'x':x[1], 'y':x[2], 'type':x[3], 'content':x[4]}
     for row in data:
-        results.append(dict(zip(columns, row)))
+        results[row[0]] = dict_from_row(row)
     return json.dumps(results)
+
 @CanRead
 def getConnectionsByProject(uid,
                             pid):
@@ -198,11 +200,13 @@ def getConnectionsByProject(uid,
     :param pid: Project Id
     """
     data = executeStatement(GET_CONNECTIONS_BY_PROJECT, (pid,), True)
-    columns = ('id', 'type', 'fromnode', 'tonode', 'metadata')
-    results = []
+    # columns = ('id', 'type', 'fromnode', 'tonode', 'metadata')
+    results = {}
+    dict_from_row = lambda x: {'type':x[1], 'fromnode':x[2], 'tonode':x[3], 'metadata': x[4]}
     for row in data:
-        results.append(dict(zip(columns, row)))
+        results[row[0]] = dict_from_row(row)
     return json.dumps(results)
+
 @CanRead
 def getProject(uid,
                pid):

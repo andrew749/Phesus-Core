@@ -13,6 +13,7 @@ from apiclient import discovery
 import uuid
 import pdb
 import time
+import datetime
 
 # Local classes
 from exceptions import *
@@ -56,7 +57,7 @@ def isAuthenticated(func):
             return redirect(url_for('login'))
         else:
             #FIXME:this is BAD, make sure to query google in the future, as it stands client can just modify cookie.
-            if session.get('expiry_time')<time.time():
+            if session.get('expiry_time') < time.time():
                 return redirect(url_for('login'))
             return func(*args, **kwargs)
     return a
@@ -99,10 +100,10 @@ def authorized():
     access_token=resp['access_token']
     refresh_token=resp['refresh_token']
     expiry_time=resp['expires_in']
-
+    expiry_time = datetime.datetime.now() + datetime.timedelta(minutes=expiry_time)
     #set session access token
-    session['access_token']=access_token
-    session['expiry_time']=expiry_time + time.time()
+    session['access_token'] = access_token
+    session['expiry_time'] = time.mktime(expiry_time.timetuple())
     #FIXME:also bad, make our own ids instead of using google.
 
     data = getUserData()
