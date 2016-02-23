@@ -80,6 +80,11 @@ def getUserData():
         return json.load(res.read())
     return json.loads(res.read().decode('utf-8'))
 
+#Serve the landing page
+@app.route("/landing")
+def serveLanding():
+    return render_template("landing.html")
+
 # handle serving the gui
 @app.route("/login")
 def login():
