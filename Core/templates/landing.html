@@ -1,0 +1,23 @@
+<!--<html>-->
+    <head>
+        <link rel="stylesheet" href="/static/landing.css">
+        <title>Thesis</title>
+    </head>
+    <body>
+        <div>
+            <marquee>
+            <p>Welcome to Thesis.</p>
+            </marquee>
+            <p>Sign in with an existing Google account.</p>
+        </div>
+        <div>
+            <a class="login-button" id="login">Login with Google</a>
+        </div>
+        <script>
+            document.getElementById("login").onclick = function (){
+                window.location.href = "/login";
+            }
+
+        </script>
+    </body>
+</html>
