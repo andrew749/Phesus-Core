@@ -53,12 +53,6 @@ export default class App extends Component {
     };
     this.drawAddArrow = this.drawAddArrow.bind(this);
     this.endAddArrow = this.endAddArrow.bind(this);
-    var req = new XMLHttpRequest();
-    req.addEventListener("load", ()=>{
-      let response = JSON.parse(req.response);
-      console.log(response);
-      this.setState({nodes: response.nodes || {}, edges: response.connections || {}}, () => console.log(this.state.nodes));
-    });
     $.get("/getProjects", function(data){
       console.log();
       this.setState((state) => {
@@ -67,12 +61,14 @@ export default class App extends Component {
           tempData.push({id:x, name:"test" + x});
         }
         state.projectIds = tempData;
+        $.get("/getProject/" + tempData[0].id , function(dataProject){
+           let response = JSON.parse(dataProject);
+           this.setState({nodes: response.nodes || {}, edges: response.connections || {}}, () => console.log(this.state.nodes));
+        }.bind(this));
         return state;
       });
     }.bind(this));
     //hardcoded for project 4
-    req.open("GET", "/getProject/4");
-    req.send();
     Dispatcher
       .on('node_changed', (data) => this.setState((state) => {
         for (var key in data.changed) {
@@ -173,6 +169,11 @@ export default class App extends Component {
       }))
       .on('sidemenu_click', (data) => this.setState((state) => {
         state.clickedId = data;
+        $.get("/getProject/" + data , function(dataProject){
+           let response = JSON.parse(dataProject);
+           this.setState({nodes: response.nodes || {}, edges: response.connections || {}}, () => console.log(this.state.nodes));
+        }.bind(this));
+
         return state;
       }));
   }
