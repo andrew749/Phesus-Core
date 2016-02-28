@@ -110,9 +110,13 @@ SELECT EXISTS(
     SELECT * FROM USERS WHERE %s = GOOGLE_ID
 );
 """
+# GET_PROJECTS = """
+# SELECT ID FROM PROJECTS WHERE %s=OWNER OR %s=ANY(MEMBERS);
+# """
 GET_PROJECTS = """
-SELECT ID FROM PROJECTS WHERE %s=OWNER OR %s=ANY(MEMBERS);
+SELECT ID FROM PROJECTS WHERE %s=OWNER;
 """
+
 
 #Database connection code
 try:
@@ -221,7 +225,7 @@ def getProject(uid,
     return json.dumps({"pid":pid,"nodes":nodes, "connections":connections})
 
 def getProjects(uid=None):
-    data = np.array(executeStatement(GET_PROJECTS,(uid, uid), True))
+    data = np.array(executeStatement(GET_PROJECTS,(uid,), True))
     return json.dumps(data[:,0].tolist())
 
 #Anyone can create a graph

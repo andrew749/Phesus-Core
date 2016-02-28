@@ -155,6 +155,6 @@ svg line.add_arrow_preview {
 .sidebarEntrySelected {
  background-color: #616161;
 }
-.sidebarEntry .sidebarEntrySelected:hover {
+.sidebarEntrySelected:hover {
  background-color: #616161;
 }

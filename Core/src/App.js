@@ -59,6 +59,17 @@ export default class App extends Component {
       console.log(response);
       this.setState({nodes: response.nodes || {}, edges: response.connections || {}}, () => console.log(this.state.nodes));
     });
+    $.get("/getProjects", function(data){
+      console.log();
+      this.setState((state) => {
+        let tempData = [];
+        for (let x of JSON.parse(data)) {
+          tempData.push({id:x, name:"test" + x});
+        }
+        state.projectIds = tempData;
+        return state;
+      });
+    }.bind(this));
     //hardcoded for project 4
     req.open("GET", "/getProject/4");
     req.send();
@@ -198,9 +209,9 @@ export default class App extends Component {
               data={{type: 'regular'}}
              />
           </Submenu>
-        </Menu>
+        </Menu >
         <div className="content-wrapper">
-          <SideBar clickedId={this.state.clickedId} data={sampleSubmenuItems}/>
+          <SideBar clickedId={this.state.clickedId} data={(this.state.projectIds) ? this.state.projectIds : []}/>
           <Graph
             nodes={this.state.nodes}
             edges={this.state.edges}
