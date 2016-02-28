@@ -141,6 +141,7 @@ svg line.add_arrow_preview {
   flex-direction:column;
   width:300px;
   background-color:#9E9E9E;
+  overflow:scroll;
 }
 
 .sidebarEntry{
