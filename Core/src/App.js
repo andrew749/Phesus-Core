@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import Graph from './graph';
-import { Menu, Submenu, MenuItem } from './menu';
+import { Menu, Submenu, MenuItem, SideBar, SideBarEntry } from './menu';
 let Dispatcher = require('./dispatcher');
 let Helpers = require('./helpers');
 let _ = require('lodash');
@@ -35,6 +35,10 @@ let sampleContent = {
     }
   }
 };
+
+let sampleSubmenuItems = [{id:0, 'name':"stuff"},
+                          {id:1, 'name':"hello"},
+                          {id:2, 'name':"test"}];
 
 export default class App extends Component {
   constructor() {
@@ -155,6 +159,10 @@ export default class App extends Component {
       .on('deselect_add_arrow', (data) => this.setState((state) => {
         delete state.nodes[data.id].addArrowSelected;
         return state;
+      }))
+      .on('sidemenu_click', (data) => this.setState((state) => {
+        state.clickedId = data;
+        return state;
       }));
   }
   componentDidMount() {
@@ -191,16 +199,19 @@ export default class App extends Component {
              />
           </Submenu>
         </Menu>
-        <Graph
-          nodes={this.state.nodes}
-          edges={this.state.edges}
-          x={this.state.viewBox.x}
-          y={this.state.viewBox.y}
-          width={this.state.viewBox.width}
-          height={this.state.viewBox.height}
-          addArrow={this.state.addArrow}
-          addArrowTo={this.state.addArrowTo}
-        />
+        <div className="content-wrapper">
+          <SideBar clickedId={this.state.clickedId} data={sampleSubmenuItems}/>
+          <Graph
+            nodes={this.state.nodes}
+            edges={this.state.edges}
+            x={this.state.viewBox.x}
+            y={this.state.viewBox.y}
+            width={this.state.viewBox.width}
+            height={this.state.viewBox.height}
+            addArrow={this.state.addArrow}
+            addArrowTo={this.state.addArrowTo}
+          />
+        </div>
       </div>
     );
   }

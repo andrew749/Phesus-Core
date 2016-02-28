@@ -131,3 +131,30 @@ svg line.add_arrow_preview {
   stroke: rgba(50,50,200,0.9);
   stroke-width: 1;
 }
+.content-wrapper {
+  display:flex;
+  flex: 1;
+}
+
+.sidebar {
+  display:flex;
+  flex-direction:column;
+  width:300px;
+  background-color:#9E9E9E;
+}
+
+.sidebarEntry{
+  margin: 5px 5px;
+  padding:10px;
+  flex-direction: row;
+  background-color:#EEEEEE;
+}
+.sidebarEntry:hover {
+  background-color:#E0E0E0;
+}
+.sidebarEntrySelected {
+ background-color: #616161;
+}
+.sidebarEntry .sidebarEntrySelected:hover {
+ background-color: #616161;
+}

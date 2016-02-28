@@ -65,3 +65,38 @@ export class MenuItem extends Component {
     );
   }
 }
+
+export class SideBarEntry extends Component {
+  constructor(props) {
+    super(props);
+    this.clickItem = this.clickItem.bind(this);
+  }
+
+  clickItem() {
+    Dispatcher.emit('sidemenu_click', this.props.id);
+  }
+
+  render() {
+    return (
+      <div onClick={this.clickItem} className={this.props.enabled ?'sidebarEntry sidebarEntrySelected' : 'sidebarEntry'}>
+        {this.props.name}
+      </div>
+    );
+  }
+}
+
+export class SideBar extends Component {
+    render(){
+    return (
+      <div className='sidebar'>
+      {this.props.data.map((data) => {
+        if (this.props.clickedId == data.id)
+          return <SideBarEntry id={data.id} enabled={true} name={data.name} />;
+        else
+          return <SideBarEntry id={data.id} enabled={false} name={data.name} />;
+      })}
+      </div>
+    );
+  }
+
+}

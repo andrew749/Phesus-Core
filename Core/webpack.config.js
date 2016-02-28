@@ -1,17 +1,17 @@
 var path = require('path');
 var webpack = require('webpack');
-
+var PROD = process.env.NODE_ENV=="production";
 module.exports = {
   devtool: 'eval',
   entry: {
     editor: [
-      'webpack-dev-server/client?http://localhost:3000',
-      'webpack/hot/only-dev-server',
+      //'webpack-dev-server/client?http://localhost:3000',
+      //'webpack/hot/only-dev-server',
       './src/editor'
     ],
     index: [
-      'webpack-dev-server/client?http://localhost:3000',
-      'webpack/hot/only-dev-server',
+      //'webpack-dev-server/client?http://localhost:3000',
+      //'webpack/hot/only-dev-server',
       './src/index'
     ]
   },
@@ -20,13 +20,14 @@ module.exports = {
     filename: '[name].bundle.js',
     publicPath: '/static/'
   },
-  plugins: [
+  plugins: PROD ? [
+  ] : [
     new webpack.HotModuleReplacementPlugin()
   ],
   module: {
     loaders: [{
       test: /\.js$/,
-      loaders: ['react-hot', 'babel'],
+      loaders: PROD ? ['babel'] : ['react-hot', 'babel'],
       include: path.join(__dirname, 'src')
     }]
   }
