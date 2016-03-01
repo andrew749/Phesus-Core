@@ -4,6 +4,7 @@ import os
 import json
 import pdb
 import numpy as np
+from psycopg2.pool import ThreadedConnectionPool
 
 DB_NAME =  'phesus'
 DB_USER = 'dummy'
@@ -116,15 +117,7 @@ SELECT EXISTS(
 GET_PROJECTS = """
 SELECT ID FROM PROJECTS WHERE %s=OWNER;
 """
-
-
-#Database connection code
-try:
-    conn = psycopg2.connect("dbname='%s' user='%s' host='%s' password='%s'" % (DB_NAME,DB_USER, DB_HOST, DB_PASS))
-    cur = conn.cursor()
-except:
-    print ("Unable to connect to database.")
-
+pool = ThreadedConnectionPool(1, 10, "dbname='%s' user='%s' host='%s' password='%s'" % (DB_NAME,DB_USER, DB_HOST, DB_PASS))
 
 def initTables():
     """ Initializes tables if they dont already exist."""
@@ -141,12 +134,19 @@ def executeStatement(executableStatement, arguments, getResult):
     :param getResult: Boolean representing whether or not to return something at the end of the query.
     :return returns the query if specified in getResult
     """
+    conn = pool.getconn()
+    if (conn is None):
+        return None
+
+    cur = conn.cursor()
+
     cur.mogrify(executableStatement, arguments)
     if (arguments is not None):
         cur.execute(executableStatement, arguments)
     else:
         cur.execute(executableStatement)
     conn.commit()
+    pool.putconn(conn)
     if getResult:
         rows = cur.fetchall()
         return rows

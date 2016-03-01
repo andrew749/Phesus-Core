@@ -6,6 +6,9 @@ let Helpers = require('./helpers');
 let _ = require('lodash');
 let update = require('react-addons-update');
 
+/**
+* Smaple data
+*/
 let sampleContent = {
   nodes: {
     '1': {
@@ -61,6 +64,7 @@ export default class App extends Component {
           tempData.push({id:x, name:"test" + x});
         }
         state.projectIds = tempData;
+        state.currentId = tempData[0].id;
         $.get("/getProject/" + tempData[0].id , function(dataProject){
            let response = JSON.parse(dataProject);
            this.setState({nodes: response.nodes || {}, edges: response.connections || {}}, () => console.log(this.state.nodes));
@@ -120,7 +124,7 @@ export default class App extends Component {
             this.setState({nodes: response.nodes || {}, edges: response.connections || {}}, () => console.log(this.state.nodes));
           });
 
-          req.open("GET", `/createNode/4/${x_pos}/${y_pos}`);
+          req.open("GET", `/createNode/${this.state.currentProject}/${x_pos}/${y_pos}`);
           req.send();
 
       }))
