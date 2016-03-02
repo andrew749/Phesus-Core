@@ -6,43 +6,6 @@ let Helpers = require('./helpers');
 let _ = require('lodash');
 let update = require('react-addons-update');
 
-/**
-* Smaple data
-*/
-let sampleContent = {
-  nodes: {
-    '1': {
-      x: 0,
-      y: 0,
-      content: {title: 'Hello, world'}
-    },
-    '2': {
-      x: 200,
-      y: -30,
-      content: {title: 'How\'s it going?'}
-    },
-    '3': {
-      x: 130,
-      y: 160,
-      content: {title: 'broooooo'}
-    }
-  },
-  connections: {
-    '1': {
-      from: '1',
-      to: '2'
-    },
-    '2': {
-      from: '2',
-      to: '3'
-    }
-  }
-};
-
-let sampleSubmenuItems = [{id:0, 'name':"stuff"},
-                          {id:1, 'name':"hello"},
-                          {id:2, 'name':"test"}];
-
 export default class App extends Component {
   constructor() {
     super();
@@ -57,22 +20,23 @@ export default class App extends Component {
     this.drawAddArrow = this.drawAddArrow.bind(this);
     this.endAddArrow = this.endAddArrow.bind(this);
     $.get("/getProjects", function(data){
-      console.log();
       this.setState((state) => {
         let tempData = [];
         for (let x of JSON.parse(data)) {
-          tempData.push({id:x, name:"test" + x});
+          tempData.push({id:x, name:"test " + x});
         }
         state.projectIds = tempData;
-        state.currentId = tempData[0].id;
+        state.clickedId = tempData[0].id;
         $.get("/getProject/" + tempData[0].id , function(dataProject){
            let response = JSON.parse(dataProject);
-           this.setState({nodes: response.nodes || {}, edges: response.connections || {}}, () => console.log(this.state.nodes));
+           state.nodes = response.nodes || {};
+           state.edges = response.connections || {};
+           this.setState(state);
         }.bind(this));
         return state;
       });
     }.bind(this));
-    //hardcoded for project 4
+
     Dispatcher
       .on('node_changed', (data) => this.setState((state) => {
         for (var key in data.changed) {
@@ -117,16 +81,12 @@ export default class App extends Component {
           y: y_pos,
           localID: true
         }
-        var req = new XMLHttpRequest();
-          req.addEventListener("load", ()=>{
-            let response = JSON.parse(req.response);
+        $.get(`/createNode/${state.clickedId}/${x_pos}/${y_pos}`, function (data){
+            let response = JSON.parse(data);
             console.log(response);
-            this.setState({nodes: response.nodes || {}, edges: response.connections || {}}, () => console.log(this.state.nodes));
-          });
-
-          req.open("GET", `/createNode/${this.state.currentProject}/${x_pos}/${y_pos}`);
-          req.send();
-
+            //set the node to the server provided id.
+        });
+        return state;
       }))
       .on('begin_add_arrow', (data) => {
         this.setState((state) => {
@@ -145,19 +105,15 @@ export default class App extends Component {
             to: data.id,
             localID: true
           };
-          var req = new XMLHttpRequest();
-          req.addEventListener("load", ()=>{
-            let response = JSON.parse(req.response);
-            console.log(response);
-            this.setState({nodes: response.nodes || {}, edges: response.connections || {}}, () => console.log(this.state.nodes));
-          });
-
-          req.open("GET", `/createConnection/4/${state.addArrow}/${data.id}`);
-          req.send();
 
           _.each(state.nodes, (node) => delete node.addArrowSelected);
           delete state.addArrow;
           delete state.addArrowTo;
+          $.get(`/createConnection/${state.clickedId}/${state.addArrow}/${data.id}`, function(data){
+            let response = JSON.parse(data);
+            console.log(response);
+            //set the node id in the editor from a temporary id to the server provided id
+          });
           return state;
         });
         window.removeEventListener('mousemove', this.drawAddArrow);
@@ -175,15 +131,21 @@ export default class App extends Component {
         state.clickedId = data;
         $.get("/getProject/" + data , function(dataProject){
            let response = JSON.parse(dataProject);
-           this.setState({nodes: response.nodes || {}, edges: response.connections || {}}, () => console.log(this.state.nodes));
-        }.bind(this));
-
+           state.nodes = response.nodes || {};
+           state.edges = response.connections || {};
+           state.clickedId = data;
+           Dispatcher.emit('loaded_project', state);
+        });
+        return state;
+      })).on('loaded_project', (data) => this.setState((state) => {
+        state.nodes = data.nodes;
+        state.edges = data.edges;
+        state.clickedId = data.clickedId;
         return state;
       }));
   }
   componentDidMount() {
     document.body.addEventListener('click', () => Dispatcher.emit('menu_close_all'));
-
   }
   endAddArrow(event) {
     this.setState((state) => {

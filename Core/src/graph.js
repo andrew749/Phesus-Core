@@ -155,7 +155,6 @@ export default class Graph extends Component {
         ) * 180 / Math.PI}
       />);
     });
-    console.log(this.props.edges)
     return(
       <svg className={`canvas ${addingArrow ? 'adding_arrow' : ''}`} viewBox={this.getViewBox()}>
         <g className='wrapper'>

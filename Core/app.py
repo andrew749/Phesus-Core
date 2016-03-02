@@ -139,7 +139,7 @@ def createNode(projectId, x, y):
  #TODO actaully take json
     data = db_interactor.createNode(uid=session['id'], pid = projectId, x=x, y=y, type=db_interactor.NodeType.NORMAL, contentJson=json.dumps(""))
     if data is not None:
-        return data
+        return json.dumps(data[0][0])
     raise PhesusException("Couldn't create node")
 
 @app.route("/createConnection/<projectId>/<fromnode>/<tonode>")
