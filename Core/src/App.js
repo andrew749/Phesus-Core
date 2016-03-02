@@ -82,10 +82,15 @@ export default class App extends Component {
           localID: true
         }
         $.get(`/createNode/${state.clickedId}/${x_pos}/${y_pos}`, function (data){
-            let response = JSON.parse(data);
-            console.log(response);
-            //set the node to the server provided id.
-        });
+            if (state.nodes[id]) {
+              let response = JSON.parse(data);
+              console.log(response);
+              //set the node to the server provided id.
+              state.nodes[response] = state.nodes[id];
+              delete state.nodes[id];
+              this.setState(state);
+            }
+            });
         return state;
       }))
       .on('begin_add_arrow', (data) => {
@@ -105,15 +110,20 @@ export default class App extends Component {
             to: data.id,
             localID: true
           };
+          $.get(`/createConnection/${state.clickedId}/${state.addArrow}/${data.id}`, function(data){
+            if (state.edges[id]) {
+            let response = JSON.parse(data);
+            console.log(response);
+            //set the node id in the editor from a temporary id to the server provided id
+            state.edges[response] = state.edges[id];
+            delete state.edges[id];
+            this.setState(state);
+            }
+          });
 
           _.each(state.nodes, (node) => delete node.addArrowSelected);
           delete state.addArrow;
           delete state.addArrowTo;
-          $.get(`/createConnection/${state.clickedId}/${state.addArrow}/${data.id}`, function(data){
-            let response = JSON.parse(data);
-            console.log(response);
-            //set the node id in the editor from a temporary id to the server provided id
-          });
           return state;
         });
         window.removeEventListener('mousemove', this.drawAddArrow);
