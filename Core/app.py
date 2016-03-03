@@ -133,16 +133,16 @@ def authorized():
 def get_access_token():
     return session.get('access_token')
 
-@app.route("/createNode/<projectId>/<x>/<y>")
+@app.route("/createNode/<projectId>/<x>/<y>", methods=['POST'])
 @isAuthenticated
 def createNode(projectId, x, y):
- #TODO actaully take json
-    data = db_interactor.createNode(uid=session['id'], pid = projectId, x=x, y=y, type=db_interactor.NodeType.NORMAL, contentJson=json.dumps(""))
+    content = request.json['content']
+    data = db_interactor.createNode(uid=session['id'], pid = projectId, x=x, y=y, type=db_interactor.NodeType.NORMAL, contentJson=json.dumps(content))
     if data is not None:
         return json.dumps(data[0][0])
     raise PhesusException("Couldn't create node")
 
-@app.route("/createConnection/<projectId>/<fromnode>/<tonode>")
+@app.route("/createConnection/<projectId>/<fromnode>/<tonode>", methods=['POST'])
 @isAuthenticated
 def createConnection(projectId, fromnode, tonode):
     data = db_interactor.createConnection(uid=session['id'],pid=projectId, type=db_interactor.ConnectionType.NORMAL, fromnode=fromnode, tonode=tonode, metadata=json.dumps({}))
@@ -159,6 +159,32 @@ def getProject(projectId):
     return db_interactor.getProject(uid=session['id'], pid=projectId)
 
 """
+Update the project node
+"""
+@app.route("/updateNode/<projectId>/<nodeId>/<x>/<y>/<type>", methods=['POST'])
+@isAuthenticated
+def updateNode(projectId, nodeId, x, y, type):
+    tempData = request.json['content']
+    if (tempData is not None):
+        content = tempData
+    else:
+        content = {}
+    db_interactor.updateNode(uid=session['id'], pid=projectId, nodeId=nodeId, x=int(round(float(x))), y=int(round(float(y))), type=type, content=content)
+    return ('', 200)
+
+"""
+Update the project connection
+"""
+@app.route("/updateConnection/<projectId>/<connectionId>/<type>/<fromnode>/<tonode>", methods=['POST'])
+@isAuthenticated
+def updateConnection(projectId, connectionId, type, fromnode, tonode):
+    content = request.json['content']
+    if content is None:
+        content = {}
+    db_interactor.updateConnection(uid=session['id'], pid=projectId, connectionId=connectionId, type=type, fromnode=fromnode, tonode=tonode, content=content)
+    return ('', 200)
+
+"""
 Get projects for a user id.
 """
 @app.route("/getProjects")
@@ -170,7 +196,7 @@ def getProjects():
 """
 Create a new project for the current logged in user.
 """
-@app.route("/createProject")
+@app.route("/createProject", methods=['POST'])
 @isAuthenticated
 def createProject():
     data =  db_interactor.createProject(session['id'],[])

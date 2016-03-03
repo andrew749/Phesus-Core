@@ -87,7 +87,7 @@ CREATE_USER = """INSERT INTO USERS (NAME, EMAIL, GOOGLE_ID) VALUES (%s, %s, %s) 
 CREATE_GRAPH = """INSERT INTO PROJECTS (OWNER, MEMBERS) VALUES (%s, %s) RETURNING ID;"""
 CREATE_NODE = """INSERT INTO NODES (X,Y,TYPE,CONTENT,PROJECT) VALUES (%s, %s, %s, %s, %s) RETURNING ID;"""
 CREATE_CONNECTION = """INSERT INTO CONNECTIONS (PROJECT, TYPE, FROMNODE, TONODE, METADATA) VALUES (%s, %s, %s, %s, %s) RETURNING ID;"""
-UPDATE_NODE = """UPDATE NODES SET x = %s, y = %s, type = %s, content = %s,   where ID = %s;"""
+UPDATE_NODE = """UPDATE NODES SET x = %s, y = %s, type = %s, content = %s where ID = %s;"""
 UPDATE_CONNECTION = """UPDATE CONNECTIONS SET type = %s, tonode = %s, fromnode = %s, metadata = %s where ID = %s;"""
 DELETE_NODE = """DELETE FROM NODES WHERE %s=ID; DELETE FROM CONNECTIONS WHERE %s in FROMNODE || TONODE;""" #both params are node id, when you delete a node all refs are invalid
 DELETE_CONNECTION = """DELETE FROM CONNECTIONS WHERE %s = ID; """
@@ -117,7 +117,7 @@ SELECT EXISTS(
 GET_PROJECTS = """
 SELECT ID FROM PROJECTS WHERE %s=OWNER;
 """
-pool = ThreadedConnectionPool(1, 10, "dbname='%s' user='%s' host='%s' password='%s'" % (DB_NAME,DB_USER, DB_HOST, DB_PASS))
+pool = ThreadedConnectionPool(1, 100, "dbname='%s' user='%s' host='%s' password='%s'" % (DB_NAME,DB_USER, DB_HOST, DB_PASS))
 
 def initTables():
     """ Initializes tables if they dont already exist."""
@@ -320,7 +320,7 @@ def updateNode(uid,
                type,
                content):
     #updates all fields
-    executeStatement(UPDATE_NODE, (x, y, type, content, nodeId),False)
+    executeStatement(UPDATE_NODE, (x, y, type, json.dumps(content), nodeId),False)
 
 def checkIfNodeIsInProject(uid,
                            pid,

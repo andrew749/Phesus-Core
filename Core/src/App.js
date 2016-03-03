@@ -6,9 +6,22 @@ let Helpers = require('./helpers');
 let _ = require('lodash');
 let update = require('react-addons-update');
 
+
 export default class App extends Component {
+  static post(url, data, callback) {
+    $.ajax({
+      type: "POST",
+      url: url,
+      // The key needs to match your method's input parameter (case-sensitive).
+      data: JSON.stringify(data),
+      contentType: "application/json; charset=utf-8",
+      success: callback
+    });
+  }
+
   constructor() {
     super();
+    // the initial state
     this.state = {
       nodes: {},
       edges: {},
@@ -17,9 +30,13 @@ export default class App extends Component {
         addNode: {open: false}
       }
     };
+    //set the environment
     this.drawAddArrow = this.drawAddArrow.bind(this);
     this.endAddArrow = this.endAddArrow.bind(this);
+
+    //initial query for a users projects
     $.get("/getProjects", function(data){
+      //update the ui with the projects
       this.setState((state) => {
         let tempData = [];
         for (let x of JSON.parse(data)) {
@@ -27,6 +44,8 @@ export default class App extends Component {
         }
         state.projectIds = tempData;
         state.clickedId = tempData[0].id;
+
+        //secondary query to get the data for each project
         $.get("/getProject/" + tempData[0].id , function(dataProject){
            let response = JSON.parse(dataProject);
            state.nodes = response.nodes || {};
@@ -38,6 +57,22 @@ export default class App extends Component {
     }.bind(this));
 
     Dispatcher
+      .on('node_did_finish_moving', (data) => {
+          console.log("finished");
+          let tempNode = this.state.nodes[data.id];
+          App.post(`/updateNode/${this.state.clickedId}/${data.id}/${tempNode.x}/${tempNode.y}/${tempNode.type}`, {"content": "hello"}, (data) => this.setState((state) => {
+            let id = data.id;
+            if (state.nodes[id]) {
+              let response = JSON.parse(data);
+              console.log(response);
+              //set the node to the server provided id.
+              state.nodes[response] = state.nodes[id];
+              delete state.nodes[id];
+            }
+            return state;
+            })
+          );
+      })
       .on('node_changed', (data) => this.setState((state) => {
         for (var key in data.changed) {
           state.nodes[data.id][key] = data.changed[key];
@@ -81,7 +116,7 @@ export default class App extends Component {
           y: y_pos,
           localID: true
         }
-        $.get(`/createNode/${state.clickedId}/${x_pos}/${y_pos}`, function (data){
+        App.post(`/createNode/${state.clickedId}/${x_pos}/${y_pos}`, {"content":"test"}, (data) => {
             if (state.nodes[id]) {
               let response = JSON.parse(data);
               console.log(response);
@@ -90,7 +125,7 @@ export default class App extends Component {
               delete state.nodes[id];
               this.setState(state);
             }
-            });
+        })
         return state;
       }))
       .on('begin_add_arrow', (data) => {
@@ -110,7 +145,7 @@ export default class App extends Component {
             to: data.id,
             localID: true
           };
-          $.get(`/createConnection/${state.clickedId}/${state.addArrow}/${data.id}`, function(data){
+          $.post(`/createConnection/${state.clickedId}/${state.addArrow}/${data.id}`, function(data){
             if (state.edges[id]) {
             let response = JSON.parse(data);
             console.log(response);

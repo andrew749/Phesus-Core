@@ -88,6 +88,9 @@ export default class Node extends Component {
       this.props.x + (event.clientX - this.initialX)*(this.props.scaleX || 1),
       this.props.y + (event.clientY - this.initialY)*(this.props.scaleY || 1)
     );
+    Dispatcher.emit(`node_did_finish_moving`, {
+      id: this.props.id
+    });
     return Helpers.stopEvent(event);
   }
   drag(event) {
