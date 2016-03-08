@@ -63,9 +63,13 @@ def isAuthenticated(func):
     return a
 
 @app.route('/')
-@isAuthenticated
 def index():
-    return ("Welcome {}".format(session['name']))
+    return (render_template('index.html'))
+
+@app.route('/editor')
+@isAuthenticated
+def editor():
+    return render_template('editor.html')
 
 def getUserData():
     access_token = session['access_token']
@@ -98,7 +102,6 @@ def logout():
     return redirect(url_for('index'))
 
 @app.route('/<path:path>')
-@isAuthenticated
 def static_file(path):
     return app.send_static_file(path)
 
