@@ -139,7 +139,6 @@ svg line.add_arrow_preview {
 .sidebar {
   display:flex;
   flex-direction:column;
-  width:300px;
   background-color:#9E9E9E;
   overflow:scroll;
 }
@@ -158,4 +157,22 @@ svg line.add_arrow_preview {
 }
 .sidebarEntrySelected:hover {
  background-color: #616161;
+}
+.sidebar-closed {
+  animation-name:close-menu;
+  animation-duration:.5s;
+  width:0px;
+}
+.sidebar-open {
+  animation-name:open-menu;
+  animation-duration:.5s;
+  width:300px;
+}
+@keyframes open-menu {
+  from {width:0px;}
+  to {width:300px;}
+}
+@keyframes close-menu {
+  from {width:300px;}
+  to {width:0px;}
 }

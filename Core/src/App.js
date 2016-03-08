@@ -27,8 +27,9 @@ export default class App extends Component {
       edges: {},
       viewBox: {},
       menu: {
-        addNode: {open: false}
-      }
+        addNode: {open: false},
+      },
+      open: false
     };
     //set the environment
     this.drawAddArrow = this.drawAddArrow.bind(this);
@@ -58,13 +59,11 @@ export default class App extends Component {
 
     Dispatcher
       .on('node_did_finish_moving', (data) => {
-          console.log("finished");
           let tempNode = this.state.nodes[data.id];
           App.post(`/updateNode/${this.state.clickedId}/${data.id}/${tempNode.x}/${tempNode.y}/${tempNode.type}`, {"content": "hello"}, (data) => this.setState((state) => {
             let id = data.id;
             if (state.nodes[id]) {
               let response = JSON.parse(data);
-              console.log(response);
               //set the node to the server provided id.
               state.nodes[response] = state.nodes[id];
               delete state.nodes[id];
@@ -119,7 +118,6 @@ export default class App extends Component {
         App.post(`/createNode/${state.clickedId}/${x_pos}/${y_pos}`, {"content":"test"}, (data) => {
             if (state.nodes[id]) {
               let response = JSON.parse(data);
-              console.log(response);
               //set the node to the server provided id.
               state.nodes[response] = state.nodes[id];
               delete state.nodes[id];
@@ -148,7 +146,6 @@ export default class App extends Component {
           $.post(`/createConnection/${state.clickedId}/${state.addArrow}/${data.id}`, function(data){
             if (state.edges[id]) {
             let response = JSON.parse(data);
-            console.log(response);
             //set the node id in the editor from a temporary id to the server provided id
             state.edges[response] = state.edges[id];
             delete state.edges[id];
@@ -186,6 +183,12 @@ export default class App extends Component {
         state.nodes = data.nodes;
         state.edges = data.edges;
         state.clickedId = data.clickedId;
+        return state;
+      })).on('side_menu_toggle', (data) => this.setState((state) => {
+        let menuIcon = document.getElementById("sidebar");
+        let open = state.open;
+        menuIcon.className = `sidebar ${(!open) ? "sidebar-closed" : "sidebar-open"}`;
+        state.open = !open;
         return state;
       }));
   }
