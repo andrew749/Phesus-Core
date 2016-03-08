@@ -88,7 +88,7 @@ export class SideBarEntry extends Component {
 export class SideBar extends Component {
     render(){
     return (
-      <div id="sidebar" className='sidebar'>
+      <div id='sidebar' className={`sidebar ${this.props.className}`}>
       {this.props.data.map((data) => {
         if (this.props.clickedId == data.id)
           return <SideBarEntry id={data.id} enabled={true} name={data.name} key={data.name} />;

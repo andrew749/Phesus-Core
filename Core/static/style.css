@@ -145,14 +145,21 @@ svg line.add_arrow_preview {
   display:flex;
   flex-direction:column;
   background-color:#9E9E9E;
-  overflow:scroll;
+  overflow-x: hidden;
+  overflow-y: auto;
+  width: 300px;
+  transition: all ease 0.3s;
 }
-
+.sidebar.closed {
+  width:0;
+}
 .sidebarEntry{
-  margin: 5px 5px;
   padding:10px;
   flex-direction: row;
   background-color:#EEEEEE;
+  box-sizing: border-box;
+  width: 300px;
+  color: #FFF;
 }
 
 .sidebarEntry:hover {
