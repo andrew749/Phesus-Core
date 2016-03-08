@@ -35,6 +35,6 @@ pip install -r requirements.txt
 ##Running the server
 ```
 . bin/activate
-python Core/app.py
+.Core/app.py
 ```
 

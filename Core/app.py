@@ -1,3 +1,5 @@
+#!/usr/bin/env python3.5
+
 import db_interactor
 import json
 import flask
@@ -14,9 +16,14 @@ import uuid
 import pdb
 import time
 import datetime
+from os import system
+
+system("cd Core/src && npm run build")
 
 # Local classes
 from exceptions import *
+
+
 
 app = Flask(__name__)
 secret = str(uuid.uuid4())
