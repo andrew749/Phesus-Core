@@ -12,6 +12,11 @@ body {
   flex-direction: column;
 }
 
+.topBar {
+  display: flex;
+  flex-direction: row;
+}
+
 /* Editor */
 .menu {
   font-size: 1rem;
@@ -149,30 +154,54 @@ svg line.add_arrow_preview {
   flex-direction: row;
   background-color:#EEEEEE;
 }
+
 .sidebarEntry:hover {
   background-color:#E0E0E0;
 }
+
 .sidebarEntrySelected {
  background-color: #616161;
 }
+
 .sidebarEntrySelected:hover {
  background-color: #616161;
 }
+
 .sidebar-closed {
   animation-name:close-menu;
   animation-duration:.5s;
   width:0px;
 }
+
 .sidebar-open {
   animation-name:open-menu;
   animation-duration:.5s;
   width:300px;
 }
+
 @keyframes open-menu {
   from {width:0px;}
   to {width:300px;}
 }
+
 @keyframes close-menu {
   from {width:300px;}
   to {width:0px;}
+}
+
+#menu-icon {
+  font-size:2.5em;
+  padding:5px;
+  display:flex;
+  align-items:center;
+}
+
+@keyframes open-menu-icon {
+  from {padding-left: 0px;}
+  to {padding-left: 5px;}
+}
+
+@keyframes close-menu-icon {
+  from {padding-left:5px;}
+  to {padding-left:0px;}
 }

@@ -6,7 +6,6 @@ let Helpers = require('./helpers');
 export function Menu(props) {
   return (
     <div className='menu'>
-      <i id="menu-icon" className="fa fa-bars" onClick={toggleSideMenu}></i>
       {
         props.title ?
           (
@@ -22,11 +21,6 @@ export function Menu(props) {
     </div>
   );
 }
-
-function toggleSideMenu() {
-  Dispatcher.emit('side_menu_toggle',{});
-}
-
 
 export class Submenu extends Component {
   constructor(props) {

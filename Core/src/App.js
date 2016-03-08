@@ -215,16 +215,19 @@ export default class App extends Component {
   render() {
     return (
       <div className='app'>
-        <Menu title='Phesus'>
-          <Submenu name='Add Node' id='addNode' open={this.state.menu.addNode.open}>
-            <MenuItem
-              name='Regular'
-              shortcut='ctrl a'
-              event='node_added'
-              data={{type: 'regular'}}
-             />
-          </Submenu>
-        </Menu >
+        <div className='topBar'>
+          <i id="menu-icon" className="fa fa-bars" onClick={toggleSideMenu}></i>
+          <Menu title='Phesus'>
+            <Submenu name='Add Node' id='addNode' open={this.state.menu.addNode.open}>
+              <MenuItem
+                name='Regular'
+                shortcut='ctrl a'
+                event='node_added'
+                data={{type: 'regular'}}
+               />
+            </Submenu>
+          </Menu >
+        </div>
         <div className="content-wrapper">
           <SideBar clickedId={this.state.clickedId} data={(this.state.projectIds) ? this.state.projectIds : []}/>
           <Graph
@@ -242,3 +245,9 @@ export default class App extends Component {
     );
   }
 }
+
+function toggleSideMenu() {
+  Dispatcher.emit('side_menu_toggle',{});
+}
+
+
