@@ -8,3 +8,4 @@ node_modules
 client_secret*.json
 *.pyc
 __pycache__/*
+Core/__pycache__/*
