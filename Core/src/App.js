@@ -184,13 +184,7 @@ export default class App extends Component {
         state.edges = data.edges;
         state.clickedId = data.clickedId;
         return state;
-      })).on('side_menu_toggle', (data) => this.setState((state) => {
-        let menuIcon = document.getElementById("sidebar");
-        let open = state.open;
-        menuIcon.className = `sidebar ${(!open) ? "sidebar-closed" : "sidebar-open"}`;
-        state.open = !open;
-        return state;
-      }));
+      })).on('side_menu_toggle', (data) => this.setState({open: !this.state.open}));
   }
   componentDidMount() {
     document.body.addEventListener('click', () => Dispatcher.emit('menu_close_all'));
@@ -226,7 +220,11 @@ export default class App extends Component {
           </Submenu>
         </Menu >
         <div className="content-wrapper">
-          <SideBar clickedId={this.state.clickedId} data={(this.state.projectIds) ? this.state.projectIds : []}/>
+          <SideBar
+            className={this.state.open ? undefined : 'closed'}
+            clickedId={this.state.clickedId}
+            data={(this.state.projectIds) ? this.state.projectIds : []}
+          />
           <Graph
             nodes={this.state.nodes}
             edges={this.state.edges}
