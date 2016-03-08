@@ -56,20 +56,35 @@ def handle_invalid_usage(error):
 """
 Authentication wrapper
 """
+
 def isAuthenticated(func):
     @wraps(func)
-    def a(*args, **kwargs):
+    def check(*args, **kwargs):
         access_token = session.get('access_token')
         if access_token is None:
             return redirect(url_for('login'))
         else:
             #FIXME:this is BAD, make sure to query google in the future, as it stands client can just modify cookie.
             if session.get('expiry_time') < time.time():
-                return redirect(url_for('login'))
+                return redirect(url_for('/login'))
             return func(*args, **kwargs)
-    return a
+    return check
+
+def guardAuthenticated(func):
+    @wraps(func)
+    def check(*args, **kwargs):
+        access_token = session.get('access_token')
+        if access_token is None:
+            return func(*args, **kwargs)
+        else:
+            #FIXME:this is BAD, make sure to query google in the future, as it stands client can just modify cookie.
+            if session.get('expiry_time') < time.time():
+                return func(*args, **kwargs)
+            return redirect(url_for('projects'))
+    return check
 
 @app.route('/')
+@guardAuthenticated
 def index():
     return (render_template('index.html'))
 
@@ -77,6 +92,11 @@ def index():
 @isAuthenticated
 def editor():
     return render_template('editor.html')
+
+@app.route('/projects')
+@isAuthenticated
+def projects():
+    return render_template('projects.html')
 
 def getUserData():
     access_token = session['access_token']
@@ -90,11 +110,6 @@ def getUserData():
             return redirect(url_for('login'))
         return json.load(res.read())
     return json.loads(res.read().decode('utf-8'))
-
-#Serve the landing page
-@app.route("/landing")
-def serveLanding():
-    return render_template("landing.html")
 
 # handle serving the gui
 @app.route("/login")
