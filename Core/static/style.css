@@ -198,17 +198,29 @@ svg line.add_arrow_preview {
 
 #menu-icon {
   font-size:2.5em;
+  width:100px;
   padding:5px;
   display:flex;
   align-items:center;
 }
+.menu-icon-open{
+  animation-name:open-menu-icon;
+  animation-duration:.5s;
+  margin-left:10px;
+}
+
+.menu-icon-closed{
+  animation-name:close-menu-icon;
+  animation-duration: .5s;
+  padding-left:5px;
+}
 
 @keyframes open-menu-icon {
-  from {padding-left: 0px;}
-  to {padding-left: 5px;}
+  from {padding-left: 5px;}
+  to {padding-left: 10px;}
 }
 
 @keyframes close-menu-icon {
-  from {padding-left:5px;}
-  to {padding-left:0px;}
+  from {padding-left:10px;}
+  to {padding-left:5px;}
 }

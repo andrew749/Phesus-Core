@@ -184,7 +184,15 @@ export default class App extends Component {
         state.edges = data.edges;
         state.clickedId = data.clickedId;
         return state;
-      })).on('side_menu_toggle', (data) => this.setState({open: !this.state.open}));
+      })).on('side_menu_toggle', (data) => this.setState((state) => {
+        let sidebar = document.getElementById("sidebar");
+        let menuIcon = document.getElementById("menu-icon");
+        let open = state.open;
+        menuIcon.className = `fa fa-bars ${(!open) ? "menu-icon-closed" : "menu-icon-open"}`;
+        sidebar.className = `sidebar ${(!open) ? "sidebar-closed" : "sidebar-open"}`;
+        state.open = !open;
+        return state;
+      }));
   }
   componentDidMount() {
     document.body.addEventListener('click', () => Dispatcher.emit('menu_close_all'));
@@ -210,9 +218,10 @@ export default class App extends Component {
     return (
       <div className='app'>
         <div className='topBar'>
-          <i id="menu-icon" className="fa fa-bars" onClick={toggleSideMenu}></i>
+          <i id="menu-icon" className="fa fa-bars open-menu-icon" onClick={toggleSideMenu}></i>
           <Menu title='Phesus'>
             <Submenu name='Add Node' id='addNode' open={this.state.menu.addNode.open}>
+              <i class="fa-plus-circle fa"/>
               <MenuItem
                 name='Regular'
                 shortcut='ctrl a'
@@ -223,11 +232,7 @@ export default class App extends Component {
           </Menu >
         </div>
         <div className="content-wrapper">
-          <SideBar
-            className={this.state.open ? undefined : 'closed'}
-            clickedId={this.state.clickedId}
-            data={(this.state.projectIds) ? this.state.projectIds : []}
-          />
+          <SideBar clickedId={this.state.clickedId} data={(this.state.projectIds) ? this.state.projectIds : []}/>
           <Graph
             nodes={this.state.nodes}
             edges={this.state.edges}
