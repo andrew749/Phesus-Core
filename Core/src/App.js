@@ -10,11 +10,11 @@ let update = require('react-addons-update');
 export default class App extends Component {
   static post(url, data, callback) {
     $.ajax({
-      type: "POST",
+      type: 'POST',
       url: url,
       // The key needs to match your method's input parameter (case-sensitive).
       data: JSON.stringify(data),
-      contentType: "application/json; charset=utf-8",
+      contentType: 'application/json; charset=utf-8',
       success: callback
     });
   }
@@ -36,41 +36,38 @@ export default class App extends Component {
     this.endAddArrow = this.endAddArrow.bind(this);
 
     //initial query for a users projects
-    $.get("/getProjects", function(data){
+    $.get('/getProjects', (data) => {
       //update the ui with the projects
-      this.setState((state) => {
-        let tempData = [];
-        for (let x of JSON.parse(data)) {
-          tempData.push({id:x, name:"test " + x});
-        }
-        state.projectIds = tempData;
-        state.clickedId = tempData[0].id;
-
-        //secondary query to get the data for each project
-        $.get("/getProject/" + tempData[0].id , function(dataProject){
-           let response = JSON.parse(dataProject);
-           state.nodes = response.nodes || {};
-           state.edges = response.connections || {};
-           this.setState(state);
-        }.bind(this));
-        return state;
+      let tempData = [];
+      for (let x of JSON.parse(data)) {
+        tempData.push({id:x, name:'test ' + x});
+      }
+      //secondary query to get the data for each project
+      $.get('/getProject/' + tempData[0].id , (dataProject) => {
+        this.setState((state) => {
+          state.projectIds = tempData;
+          state.clickedId = tempData[0].id;
+          let response = JSON.parse(dataProject);
+          state.nodes = response.nodes || {};
+          state.edges = response.connections || {};
+          return state;
+        });
       });
-    }.bind(this));
+    });
 
     Dispatcher
       .on('node_did_finish_moving', (data) => {
-          let tempNode = this.state.nodes[data.id];
-          App.post(`/updateNode/${this.state.clickedId}/${data.id}/${tempNode.x}/${tempNode.y}/${tempNode.type}`, {"content": "hello"}, (data) => this.setState((state) => {
-            let id = data.id;
-            if (state.nodes[id]) {
-              let response = JSON.parse(data);
-              //set the node to the server provided id.
-              state.nodes[response] = state.nodes[id];
-              delete state.nodes[id];
-            }
-            return state;
-            })
-          );
+        let tempNode = this.state.nodes[data.id];
+        App.post(`/updateNode/${this.state.clickedId}/${data.id}/${tempNode.x}/${tempNode.y}/${tempNode.type}`, {'content': 'hello'}, (data) => this.setState((state) => {
+          let id = data.id;
+          if (state.nodes[id]) {
+            let response = JSON.parse(data);
+            //set the node to the server provided id.
+            state.nodes[response] = state.nodes[id];
+            delete state.nodes[id];
+          }
+          return state;
+        }));
       })
       .on('node_changed', (data) => this.setState((state) => {
         for (var key in data.changed) {
@@ -105,27 +102,31 @@ export default class App extends Component {
         });
         return state;
       }))
-      .on('node_added', (data) => this.setState((state) => {
-        var id = '';
-        while (id === '' || state.nodes[id]) id = Helpers.getUUID();
-        let x_pos = state.viewBox.x + state.viewBox.width/2;
-        let y_pos = state.viewBox.y + state.viewBox.height/2;
-        state.nodes[id] = {
-          x: x_pos,
-          y: y_pos,
-          localID: true
-        }
-        App.post(`/createNode/${state.clickedId}/${x_pos}/${y_pos}`, {"content":"test"}, (data) => {
-            if (state.nodes[id]) {
-              let response = JSON.parse(data);
-              //set the node to the server provided id.
+      .on('node_added', (data) => {
+        let x_pos = this.state.viewBox.x + this.state.viewBox.width/2;
+        let y_pos = this.state.viewBox.y + this.state.viewBox.height/2;
+        this.setState((state) => {
+          var id = '';
+          while (id === '' || state.nodes[id]) id = Helpers.getUUID();
+          state.nodes[id] = {
+            x: x_pos,
+            y: y_pos,
+            localID: true
+          }
+          return state;
+        });
+        App.post(`/createNode/${this.state.clickedId}/${x_pos}/${y_pos}`, {content:'test'}, (data) => {
+          if (this.state.nodes[id]) {
+            let response = JSON.parse(data);
+            //set the node to the server provided id.
+            this.setState((state) => {
               state.nodes[response] = state.nodes[id];
               delete state.nodes[id];
-              this.setState(state);
-            }
-        })
-        return state;
-      }))
+              return state;
+            });
+          }
+        });
+      })
       .on('begin_add_arrow', (data) => {
         this.setState((state) => {
           state.addArrow = data.id;
@@ -135,6 +136,17 @@ export default class App extends Component {
         window.addEventListener('mouseup', this.endAddArrow);
       })
       .on('end_add_arrow', (data) => {
+        $.post(`/createConnection/${this.state.clickedId}/${this.state.addArrow}/${data.id}`, (res) => {
+          if (this.state.edges[data.id]) {
+            this.setState((state) => {
+              let response = JSON.parse(res);
+              //set the node id in the editor from a temporary id to the server provided id
+              state.edges[response] = state.edges[data.id];
+              delete state.edges[data.id];
+              return state;
+            });
+          }
+        });
         this.setState((state) => {
           var id = '';
           while (id === '' || state.edges[id]) id = Helpers.getUUID();
@@ -143,15 +155,6 @@ export default class App extends Component {
             to: data.id,
             localID: true
           };
-          $.post(`/createConnection/${state.clickedId}/${state.addArrow}/${data.id}`, function(data){
-            if (state.edges[id]) {
-            let response = JSON.parse(data);
-            //set the node id in the editor from a temporary id to the server provided id
-            state.edges[response] = state.edges[id];
-            delete state.edges[id];
-            this.setState(state);
-            }
-          });
 
           _.each(state.nodes, (node) => delete node.addArrowSelected);
           delete state.addArrow;
@@ -171,7 +174,7 @@ export default class App extends Component {
       }))
       .on('sidemenu_click', (data) => this.setState((state) => {
         state.clickedId = data;
-        $.get("/getProject/" + data , function(dataProject){
+        $.get('/getProject/' + data , (dataProject) => {
            let response = JSON.parse(dataProject);
            state.nodes = response.nodes || {};
            state.edges = response.connections || {};
