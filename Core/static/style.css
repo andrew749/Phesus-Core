@@ -204,26 +204,15 @@ svg line.add_arrow_preview {
   align-items:center;
 }
 .menu-icon-open{
-  animation-name:open-menu-icon;
-  animation-duration:.5s;
+  transition:all ease 0.3s;
   margin-left:10px;
 }
 
 .menu-icon-closed{
-  animation-name:close-menu-icon;
-  animation-duration: .5s;
+  transition: all ease 0.3s;
   padding-left:5px;
 }
 
-@keyframes open-menu-icon {
-  from {padding-left: 5px;}
-  to {padding-left: 10px;}
-}
-
-@keyframes close-menu-icon {
-  from {padding-left:10px;}
-  to {padding-left:5px;}
-}
 .menu-button {
   border-style:groove;
   margin:10px;

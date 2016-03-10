@@ -120,6 +120,7 @@ def login():
 #remove session
 @app.route("/logout")
 def logout():
+    #TODO do cleanup in redis when implemented
     session.pop('access_token', None)
     return redirect(url_for('index'))
 
@@ -225,7 +226,7 @@ Create a new project for the current logged in user.
 @isAuthenticated
 def createProject():
     data =  db_interactor.createProject(session['id'],[])
-    return str(data)
+    return jsonify({"projectId":str(data)})
 
 """
 Helper method to create a new user after logging in.
