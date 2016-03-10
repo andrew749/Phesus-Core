@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import Graph from './graph';
-import { Menu, Submenu, MenuItem, SideBar, SideBarEntry } from './menu';
+import { Menu, Submenu, MenuItem, MenuButton, SideBar, SideBarEntry, ColorPickerButton } from './menu';
 let Dispatcher = require('./dispatcher');
 let Helpers = require('./helpers');
 let _ = require('lodash');
@@ -223,15 +223,34 @@ export default class App extends Component {
         <div className='topBar'>
           <i id="menu-icon" className="fa fa-bars open-menu-icon" onClick={toggleSideMenu}></i>
           <Menu title='Phesus'>
-            <Submenu name='Add Node' id='addNode' open={this.state.menu.addNode.open}>
-              <i class="fa-plus-circle fa"/>
+            <Submenu hero='fa fa-3 fa-plus-circle' name='Add Node' id='addNode' open={this.state.menu.addNode.open}>
+              <i className="fa-plus-circle fa"/>
               <MenuItem
                 name='Regular'
                 shortcut='ctrl a'
                 event='node_added'
                 data={{type: 'regular'}}
                />
+              <MenuItem
+                name='Circular'
+                shortcut='ctrl a'
+                event='node_added'
+                data={{type: 'circular'}}
+               />
+              <MenuItem
+                name='Diamond'
+                shortcut='ctrl a'
+                event='node_added'
+                data={{type: 'diamond'}}
+               />
+
             </Submenu>
+            <div id='style-bar'>
+              <MenuButton font="fa fa-bold fa-3" name="Bold"/>
+              <MenuButton font="fa fa-italic fa-3" name="Italic"/>
+              <MenuButton font="fa fa-underline fa-3" name="Underline"/>
+              <ColorPickerButton />
+            </div>
           </Menu >
         </div>
         <div className="content-wrapper">
