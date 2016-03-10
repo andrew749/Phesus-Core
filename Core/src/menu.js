@@ -35,11 +35,37 @@ export class Submenu extends Component {
     return (
       <div className={`menu_item ${this.props.open ? 'open' : ''}`}>
         <div className='label' onClick={this.toggleOpen}>
+          {(this.props.hero) ? <i className={`${this.props.hero} hero`}/>
+            : null}
           {this.props.name}
         </div>
         <Menu>
           {this.props.children}
         </Menu>
+      </div>
+    );
+  }
+}
+
+export class ColorPickerButton extends Component {
+  clickHandler() {
+  //handle lannching a picker dialog
+  }
+
+  render() {
+    return (
+      <button
+      className="jscolor {valueElement:null,value:'66ccff'}"
+      style={{width:30 +'px', height:30 + 'px'}}></button>
+    );
+  }
+}
+
+export class MenuButton extends Component {
+  render() {
+    return (
+      <div className={`menu-button ${this.props.font}`}>
+      {/* {this.props.name} */}
       </div>
     );
   }
