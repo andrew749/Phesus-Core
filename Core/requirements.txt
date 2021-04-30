@@ -21,7 +21,7 @@ pycparser==2.14
 pyOpenSSL==0.15.1
 requests==2.9.1
 requests-oauthlib==0.6.0
-rsa==3.3
+rsa==4.7
 simplejson==3.8.1
 six==1.10.0
 uritemplate==0.6
